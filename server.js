@@ -45,8 +45,6 @@ io.on('connection', function(socket) {
         players[socket.id].x = move_data.x;
         players[socket.id].y = move_data.y;
 
-        console.log(socket.id, 'moved');
-
         socket.broadcast.emit('enemy_move', players[socket.id]);
     });
 

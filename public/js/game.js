@@ -53,11 +53,19 @@ function create() {
     enemies_ref = this.enemies;
     this.io.on('enemy_move', function(player_data) {
         enemies_ref.getChildren().forEach(function(enemy) {
-            console.log(player_data.player_id, enemy.id);
             if (player_data.player_id == enemy.id) {
                 enemy.setPosition(player_data.x, player_data.y);
             }
         });
+    });
+
+    this.io.on('player_disconnect', function(player_id) {
+        console.log(player_id, 'disconnected');
+        enemies_ref.getChildren().forEach(function(enemy) {
+            if (enemy.id == player_id) {
+                enemies_ref.remove(enemy, true);
+            }
+        })
     });
 }
 
