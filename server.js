@@ -47,7 +47,6 @@ io.on('connection', function(socket) {
     socket.emit('players', players);
     socket.broadcast.emit('new_player', players[socket.id]);
 
-    // start a game
     socket.on('game_start', function(is_fishy) {
         console.log('game_start', socket.id);
         game_start(socket, is_fishy);
@@ -56,7 +55,37 @@ io.on('connection', function(socket) {
     socket.on('win', function() {
         console.log('win', socket.id);
         win(socket);
-    })
+    });
+
+    socket.on('take_quad', function() {
+        console.log('take_quad', socket.id);
+        take_quad(socket);
+    });
+
+    socket.on('take_triple', function() {
+        console.log('take_triple', socket.id);
+        take_triple(socket);
+    });
+
+    socket.on('take_chi', function(low) {
+        console.log('take_chi', socket.id);
+        take_chi(socket, low);
+    });
+
+    socket.on('show_quad', function() {
+        console.log('show_quad', socket.id);
+        show_quad(socket);
+    });
+
+    socket.on('draw_tile', function() {
+        console.log('draw_tile', socket.id);
+        draw_tile(socket);
+    });
+
+    socket.on('play_tile', function(suit, num) {
+        console.log('play_tile', socket.id);
+        play_tile(socket, suit, num);
+    });
 
     socket.on('disconnect', function() {
         console.log('disconnect', socket.id);
@@ -88,6 +117,13 @@ function next(tile) {
     return [tile[0], tile[1] + 1];
 }
 
+// update all players with current game state
+function broadcast_update() {
+    io.sockets.emit('players', players);
+    io.sockets.emit('mid', mid);
+}
+
+// start a game
 function game_start(socket, is_fishy) {
     // check if a game is already running
     if (started) {
@@ -142,13 +178,11 @@ function game_start(socket, is_fishy) {
 
     // sort hands
     for (let i = 0; i < num_players; i++) {
-        players[player_ids[i]].hand.sort(function(a, b) {
-            return v(a) - v(b);
-        });
+        players[player_ids[i]].hand.sort((a, b) => v(a) - v(b));
     }
 
     // send updated player data
-    io.sockets.emit('players', players);
+    broadcast_update();
 }
 
 // rotate to the next player
@@ -164,9 +198,7 @@ function winning_hand(hand) {
         return false;
     }
 
-    hand.sort(function(a, b) {
-        return v(a) - v(b);
-    });
+    hand.sort((a, b) => v(a) - v(b));
 
     // 7 pairs
     if (hand.length == 14) {
@@ -281,7 +313,7 @@ function win(socket) {
             players[socket.id].revealed.push(players[socket.id].hand.pop())
         }
     } else { // taking from middle
-        // make sure no one else has played
+        // make sure no one else has drawn
         for (let i = 0; i < num_players; i++) {
             if (players[player_ids[i]].hand.length % 3 != 1) {
                 return;
@@ -305,7 +337,7 @@ function win(socket) {
     // if the player wins, update
     if (players[socket.id].won) {
         next_player();
-        io.sockets.emit('players', players);
+        broadcast_update();
     }
 
     // check if all players (but 1) have won
@@ -317,5 +349,174 @@ function win(socket) {
     }
     if (count + 1 >= num_players) {
         started = false;
+    }
+}
+
+// count the number of times `tile` appears in `hand`
+function count_occurences(hand, tile) {
+    let count = 0;
+    hand.forEach(function(t) {
+        if (v(t) == v(tile)) {
+            count++;
+        }
+    })
+    return count;
+}
+
+// attempt to take a quad from the middle
+function take_quad(socket) {
+    take_n(socket, 4);
+}
+
+// attempt to take a triple from the middle
+function take_triple(socket) {
+    take_n(socket, 3);
+}
+
+// attempt to take a set of size x from the middle
+function take_n(socket, x) {
+    if (mid.length < 1) {
+        return;
+    }
+
+    // make sure no one else has drawn
+    for (let i = 0; i < num_players; i++) {
+        if (players[player_ids[i]].hand.length % 3 != 1) {
+            return;
+        }
+    }
+
+    // check that player has enough copies
+    if (count_occurences(players[socket.id].hand, mid[mid.length - 1]) >= x - 1) {
+        let n = 0;
+        for (let i = players[socket.id].hand.length - 1; i >= 0; i--) {
+            if (v(players[socket.id].hand[i]) == v(mid[mid.length - 1])) {
+                players[socket.id].revealed.push(players[socket.id].hand.splice(i, 1)[0]);
+                n++;
+            }
+            if (n >= x - 1) {
+                break;
+            }
+        }
+        players[socket.id].revealed.push(mid.pop())
+
+        pov = player_ids.indexOf(socket.id);
+        broadcast_update();
+    }
+}
+
+function take_chi(socket, low) {
+    // make sure it is your turn
+    if (socket.id != player_ids[pov]) {
+        return;
+    }
+
+    if (mid.length < 1) {
+        return;
+    }
+
+    let suit = mid[mid.length - 1][0];
+
+    // keep track of which numbers are in hand
+    let in_hand = [false, false, false, false, false, false, false, false, false];
+    players[socket.id].hand.forEach(function(tile) {
+        if (tile[0] == suit) {
+            in_hand[tile[1]] = true;
+        }
+    });
+
+    // check that all three numbers of the straight are present
+    if ([low, low + 1, low + 2].every((value) => in_hand[value] || mid[mid.length - 1][1] == value)) {
+        let took_mid = false;
+        for (let x = low; x < low + 3; x++) {
+            if (!took_mid && mid[mid.length - 1][1] == x) {
+                players[socket.id].revealed.push(mid.pop())
+                took_mid = true;
+            } else {
+                for (let i = 0; i < players[socket.id].hand.length; i++) {
+                    if (players[socket.id].hand[i][0] == suit && players[socket.id].hand[i][1] == x) {
+                        players[socket.id].revealed.push(players[socket.id].hand.splice(i, 1)[0]);
+                        break;
+                    }
+                }
+            }
+        }
+
+        broadcast_update();
+    }
+}
+
+function show_quad(socket) {
+    // make sure it is your turn
+    if (socket.id != player_ids[pov]) {
+        return;
+    }
+
+    let freq = [
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0]
+    ];
+    let in_hand = [
+        [false, false, false, false, false, false, false, false, false],
+        [false, false, false, false, false, false, false, false, false],
+        [false, false, false, false, false, false, false, false, false]
+    ];
+
+    players[socket.id].hand.forEach(function(tile) {
+        freq[tile[0]][tile[1]]++;
+        in_hand[tile[0]][tile[1]] = true;
+    });
+    players[socket.id].revealed.forEach(function(tile) {
+        freq[tile[0]][tile[1]]++;
+    });
+
+    for (let suit = 0; suit < 3; suit++) {
+        for (let num = 0; num < 9; num++) {
+            if (freq[suit][num] >= 4 && in_hand[suit][num]) {
+                for (let i = players[socket.id].hand.length - 1; i >= 0; i--) {
+                    if (players[socket.id].hand[i][0] == suit && players[socket.id].hand[i][1] == num) {
+                        players[socket.id].revealed.push(players[socket.id].hand.splice(i, 1)[0]);
+                    }
+                }
+                broadcast_update();
+                return;
+            }
+        }
+    }
+}
+
+function draw_tile(socket) {
+    // make sure it is your turn
+    if (socket.id != player_ids[pov]) {
+        return;
+    }
+
+    // no more tiles left
+    if (deck.length == 0) {
+        started = false;
+        broadcast_update();
+        return;
+    }
+
+    players[socket.id].hand.push(deck.pop());
+    broadcast_update();
+}
+
+function play_tile(socket, suit, num) {
+    // make sure it is your turn
+    if (socket.id != player_ids[pov]) {
+        return;
+    }
+
+    // search hand for a matching tile, and remove it
+    for (let i = players[socket.id].hand.length - 1; i >= 0; i--) {
+        if (players[socket.id].hand[i][0] == suit && players[socket.id].hand[i][1] == num) {
+            mid.push(players[socket.id].hand.splice(i, 1)[0]);
+            players[socket.id].hand.sort((a, b) => v(a) - v(b));
+            next_player();
+            broadcast_update();
+            return;
+        }
     }
 }
