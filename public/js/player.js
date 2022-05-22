@@ -16,6 +16,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
 
         // input handling
         this.keyStart = scene.input.keyboard.addKey('S');
+        this.keyWin = scene.input.keyboard.addKey('W');
     }
 
     update() {
@@ -24,8 +25,13 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         if (this.keyStart.isDown) {
             if (!this.down) {
                 this.down = true;
-                console.log('key down');
-                this.scene.io.emit('game_start');
+                this.scene.io.emit('game_start', false);
+            }
+            return;
+        } else if (this.keyWin.isDown) {
+            if (!this.down) {
+                this.down = true;
+                this.scene.io.emit('win');
             }
         } else {
             this.down = false;
