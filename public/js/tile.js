@@ -8,6 +8,9 @@ class Tile extends Phaser.Physics.Arcade.Image {
         this.scene = scene;
         this.suit = suit;
         this.num = num;
+        this.hidden = hidden;
+
+        this.selected = false;
 
         scene.add.existing(this);
         scene.physics.add.existing(this);

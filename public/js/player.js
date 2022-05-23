@@ -42,6 +42,18 @@ class Player extends Phaser.Physics.Arcade.Sprite {
                 window_height * scale_height - tile_width * scale,
                 arr[i][0], arr[i][1], false);
             t.setScale(tile_width / 740 * scale);
+
+            t.setInteractive();
+            t.on('pointerdown', function() {
+                if (t.selected) { // deselect
+                    t.selected = false;
+                    t.setY(t.y + tile_width * 0.25 * scale);
+                } else { // select
+                    t.selected = true;
+                    t.setY(t.y - tile_width * 0.25 * scale);
+                }
+            });
+
             this.hand.add(t);
         }
     }
