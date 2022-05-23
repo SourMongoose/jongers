@@ -45,7 +45,7 @@ io.on('connection', function(socket) {
     player_ids.push(socket.id);
 
     socket.emit('players', players);
-    socket.broadcast.emit('new_player', players[socket.id]);
+    //socket.broadcast.emit('new_player', players[socket.id]);
 
     socket.on('game_start', function(is_fishy) {
         console.log('game_start', socket.id);
@@ -90,6 +90,14 @@ io.on('connection', function(socket) {
     socket.on('disconnect', function() {
         console.log('disconnect', socket.id);
         delete players[socket.id];
+
+        // if a player leaves an ongoing game
+        let i = player_ids.indexOf(socket.id);
+        if (i != -1) {
+            player_ids.splice(i, 1);
+            started = false;
+        }
+
         socket.broadcast.emit('player_disconnect', socket.id);
     });
 });

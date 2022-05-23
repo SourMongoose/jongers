@@ -30,15 +30,21 @@ var player_init = false;
 
 function preload() {
     // load tile images
-    for (var i = 1; i < 10; i++) {
-        this.load.image('tong' + i, 'public/img/pin' + i + '.png');
-        this.load.image('tiao' + i, 'public/img/bamboo' + i + '.png');
-        this.load.image('wan' + i, 'public/img/man' + i + '.png');
+    for (let i = 1; i < 10; i++) {
+        this.load.image('tong' + i, 'public/img/tiles_png/740px-MJt' + i + '-.svg.png');
+        this.load.image('tiao' + i, 'public/img/tiles_png/740px-MJs' + i + '-.svg.png');
+        this.load.image('wan' + i, 'public/img/tiles_png/740px-MJw' + i + '-.svg.png');
     }
-    this.load.image('back', 'public/img/facedown.png');
+    for (let i = 1; i < 4; i++) {
+        this.load.image('wind' + i, 'public/img/tiles_png/740px-MJf' + i + '-.svg.png');
+    }
+    for (let i = 1; i < 3; i++) {
+        this.load.image('dragon' + i, 'public/img/tiles_png/740px-MJd' + i + '-.svg.png');
+    }
+    this.load.image('back', 'public/img/tiles_png/back.png');
 
-    this.load.image('player', 'public/img/player.png');
-    this.load.image('enemy', 'public/img/enemy.png');
+    this.load.image('player', 'public/img/blank.png');
+    this.load.image('enemy', 'public/img/blank.png');
 }
 
 function create() {
@@ -49,7 +55,12 @@ function create() {
     createPlayer(self);
 
     // update players
+    //io_ref = this.io;
     this.io.on('players', function(players) {
+        //console.log(io_ref.id);
+        if (self.player_init) {
+            self.player.setHand(players[self.io.id].hand, window_width / 1920, window_height / 1080);
+        }
         Object.keys(players).forEach(function(id) {
             console.log(id, players[id]);
         });
