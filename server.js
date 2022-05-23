@@ -386,7 +386,8 @@ function take_triple(socket) {
 
 // attempt to take a set of size x from the middle
 function take_n(socket, x) {
-    if (mid.length < 1) {
+    // sanity checks
+    if (!started || mid.length < 1) {
         return;
     }
 
@@ -417,12 +418,13 @@ function take_n(socket, x) {
 }
 
 function take_chi(socket, low) {
-    // make sure it is your turn
-    if (socket.id != player_ids[pov]) {
+    // sanity checks
+    if (!started || mid.length < 1) {
         return;
     }
 
-    if (mid.length < 1) {
+    // make sure it is your turn
+    if (socket.id != player_ids[pov]) {
         return;
     }
 
@@ -458,6 +460,11 @@ function take_chi(socket, low) {
 }
 
 function show_quad(socket) {
+    // sanity checks
+    if (!started) {
+        return;
+    }
+
     // make sure it is your turn
     if (socket.id != player_ids[pov]) {
         return;
@@ -498,6 +505,11 @@ function show_quad(socket) {
 }
 
 function draw_tile(socket) {
+    // sanity checks
+    if (!started) {
+        return;
+    }
+
     // make sure it is your turn
     if (socket.id != player_ids[pov]) {
         return;
@@ -515,6 +527,11 @@ function draw_tile(socket) {
 }
 
 function play_tile(socket, suit, num) {
+    // sanity checks
+    if (!started) {
+        return;
+    }
+
     // make sure it is your turn
     if (socket.id != player_ids[pov]) {
         return;
