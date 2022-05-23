@@ -12,6 +12,16 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
 
         this.hand = scene.physics.add.group();
         this.revealed = scene.physics.add.group();
+
+        // graphics constants
+        this.window_width = 1920;
+        this.window_height = 1080;
+        this.hand_tile_width = 50;
+        this.hand_tile_height = this.hand_tile_width * 899 / 740;
+        this.revealed_tile_width = 50;
+        this.revealed_tile_height = this.revealed_tile_width * 899 / 740;
+        this.overlap = 0.185;
+        this.margin = 10;
     }
 
     clearAll() {
@@ -36,13 +46,6 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
 
         let scale = Math.min(scale_width, scale_height);
 
-        let window_width = 1920;
-        let window_height = 1080;
-        let tile_width = 75;
-        let overlap = 0.185;
-        let hand_width = arr.length * tile_width * (1 - overlap) + tile_width * overlap;
-        let margin = ((this.position == 2 ? window_width * scale_width : window_height * scale_height) - hand_width * scale) / 2;
-
         // remove previous elements
         this.clearHand();
 
@@ -51,24 +54,24 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
             let t;
             if (this.position == 1) { // left
                 t = new Tile(this.scene,
-                    tile_width * scale, 
-                    window_height * scale_height - margin - (tile_width / 2 + i * tile_width * (1 - overlap)) * scale,
+                    (this.margin + this.hand_tile_height / 2) * scale,
+                    (this.margin + this.hand_tile_width / 2 + (arr.length - i - 1) * this.hand_tile_width * (1 - this.overlap)) * scale,
                     arr[i][0], arr[i][1], hidden);
                 t.setAngle(-90);
             } else if (this.position == 2) { // top
                 t = new Tile(this.scene,
-                    margin + (tile_width / 2 + i * tile_width * (1 - overlap)) * scale, 
-                    tile_width * scale,
+                    this.window_width * scale_width - (this.margin + this.hand_tile_width / 2 + (arr.length - i - 1) * this.hand_tile_width * (1 - this.overlap)) * scale,
+                    (this.margin + this.hand_tile_height / 2) * scale,
                     arr[i][0], arr[i][1], hidden);
                 t.setAngle(0);
             } else if (this.position == 3) { // right
                 t = new Tile(this.scene,
-                    window_width * scale_width - tile_width * scale, 
-                    margin + (tile_width / 2 + i * tile_width * (1 - overlap)) * scale,
+                    this.window_width * scale_width - (this.margin + this.hand_tile_height / 2) * scale,
+                    this.window_height * scale_height - (this.margin + this.hand_tile_width / 2 + (arr.length - i - 1) * this.hand_tile_width * (1 - this.overlap)) * scale,
                     arr[i][0], arr[i][1], hidden);
                 t.setAngle(90);
             }
-            t.setScale(tile_width / 740 * scale);
+            t.setScale(this.hand_tile_width / 740 * scale);
             this.hand.add(t);
         }
     }
@@ -78,13 +81,6 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
 
         let scale = Math.min(scale_width, scale_height);
 
-        let window_width = 1920;
-        let window_height = 1080;
-        let tile_width = 75;
-        let overlap = 0.185;
-        let hand_width = arr.length * tile_width * (1 - overlap) + tile_width * overlap;
-        let margin = ((this.position == 2 ? window_width * scale_width : window_height * scale_height) - hand_width * scale) / 2;
-
         // remove previous elements
         this.clearRevealed();
 
@@ -93,24 +89,24 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
             let t;
             if (this.position == 1) { // left
                 t = new Tile(this.scene,
-                    tile_width * scale * 2.5,
-                    window_height * scale_height - margin - (tile_width / 2 + i * tile_width * (1 - overlap)) * scale,
+                    (this.margin * 2 + this.hand_tile_height + this.revealed_tile_height / 2) * scale,
+                    (this.margin + this.revealed_tile_width / 2 + (arr.length - i - 1) * this.revealed_tile_width * (1 - this.overlap)) * scale,
                     arr[i][0], arr[i][1], false);
                 t.setAngle(-90);
             } else if (this.position == 2) { // top
                 t = new Tile(this.scene,
-                    margin + (tile_width / 2 + i * tile_width * (1 - overlap)) * scale,
-                    tile_width * scale * 2.5,
+                    this.window_width * scale_width - (this.margin + this.revealed_tile_width / 2 + (arr.length - i - 1) * this.revealed_tile_width * (1 - this.overlap)) * scale,
+                    (this.margin * 2 + this.hand_tile_height + this.revealed_tile_height / 2) * scale,
                     arr[i][0], arr[i][1], false);
                 t.setAngle(0);
             } else if (this.position == 3) { // right
                 t = new Tile(this.scene,
-                    window_width * scale_width - tile_width * scale * 2.5,
-                    margin + (tile_width / 2 + i * tile_width * (1 - overlap)) * scale,
+                    this.window_width * scale_width - (this.margin * 2 + this.hand_tile_height + this.revealed_tile_height / 2) * scale,
+                    this.window_height * scale_height - (this.margin + this.revealed_tile_width / 2 + (arr.length - i - 1) * this.revealed_tile_width * (1 - this.overlap)) * scale,
                     arr[i][0], arr[i][1], false);
                 t.setAngle(90);
             }
-            t.setScale(tile_width / 740 * scale);
+            t.setScale(this.revealed_tile_width / 740 * scale);
             this.revealed.add(t);
         }
     }

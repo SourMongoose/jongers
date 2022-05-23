@@ -77,8 +77,8 @@ function create() {
         if (self.player_init) {
             // update player hand
             if (players.hasOwnProperty(self.io.id)) {
-                self.player.setHand(players[self.io.id].hand, window_width / 1920, window_height / 1080);
                 self.player.setRevealed(players[self.io.id].revealed, window_width / 1920, window_height / 1080);
+                self.player.setHand(players[self.io.id].hand, window_width / 1920, window_height / 1080);
             } else {
                 self.player.clearAll();
             }

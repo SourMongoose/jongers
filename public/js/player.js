@@ -13,6 +13,16 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         this.hand = scene.physics.add.group();
         this.revealed = scene.physics.add.group();
 
+        // graphics constants
+        this.window_width = 1920;
+        this.window_height = 1080;
+        this.hand_tile_width = 135;
+        this.hand_tile_height = this.hand_tile_width * 899 / 740;
+        this.revealed_tile_width = 105;
+        this.revealed_tile_height = this.revealed_tile_width * 899 / 740;
+        this.overlap = 0.185;
+        this.margin = 10;
+
         // input handling
         this.keyStart = scene.input.keyboard.addKey('S');
         this.keyWin = scene.input.keyboard.addKey('W');
@@ -40,32 +50,26 @@ class Player extends Phaser.Physics.Arcade.Sprite {
 
         let scale = Math.min(scale_width, scale_height);
 
-        let window_width = 1920;
-        let window_height = 1080;
-        let tile_width = 135;
-        let overlap = 0.185;
-        let hand_width = arr.length * tile_width * (1 - overlap) + tile_width * overlap;
-        let margin = (window_width * scale_width - hand_width * scale) / 2;
-
         // remove previous elements
         this.clearHand();
 
         // add new tiles
         for (let i = 0; i < arr.length; i++) {
             let t = new Tile(this.scene,
-                margin + (tile_width / 2 + i * tile_width * (1 - overlap)) * scale,
-                window_height * scale_height - tile_width * scale,
+                (this.margin + this.hand_tile_width / 2 + i * this.hand_tile_width * (1 - this.overlap)) * scale,
+                this.window_height * scale_height - (this.hand_tile_height / 2 + this.margin) * scale,
                 arr[i][0], arr[i][1], false);
-            t.setScale(tile_width / 740 * scale);
+            t.setScale(this.hand_tile_width / 740 * scale);
 
             t.setInteractive();
+            let dy = this.hand_tile_width * 0.25 * scale;
             t.on('pointerdown', function() {
                 if (t.selected) { // deselect
                     t.selected = false;
-                    t.setY(t.y + tile_width * 0.25 * scale);
+                    t.setY(t.y + dy);
                 } else { // select
                     t.selected = true;
-                    t.setY(t.y - tile_width * 0.25 * scale);
+                    t.setY(t.y - dy);
                 }
             });
 
@@ -78,23 +82,16 @@ class Player extends Phaser.Physics.Arcade.Sprite {
 
         let scale = Math.min(scale_width, scale_height);
 
-        let window_width = 1920;
-        let window_height = 1080;
-        let tile_width = 105;
-        let overlap = 0.185;
-        let hand_width = arr.length * tile_width * (1 - overlap) + tile_width * overlap;
-        let margin = (window_width * scale_width - hand_width * scale) / 2;
-
         // remove previous elements
         this.clearRevealed();
 
         // add new tiles
         for (let i = 0; i < arr.length; i++) {
             let t = new Tile(this.scene,
-                margin + (tile_width / 2 + i * tile_width * (1 - overlap)) * scale,
-                window_height * scale_height - tile_width * scale * 3,
+                (this.margin + this.revealed_tile_width / 2 + i * this.revealed_tile_width * (1 - this.overlap)) * scale,
+                this.window_height * scale_height - (this.hand_tile_height + this.revealed_tile_height / 2 + this.margin * 2) * scale,
                 arr[i][0], arr[i][1], false);
-            t.setScale(tile_width / 740 * scale);
+            t.setScale(this.revealed_tile_width / 740 * scale);
             this.revealed.add(t);
         }
     }
