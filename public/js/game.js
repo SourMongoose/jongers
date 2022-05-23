@@ -60,12 +60,12 @@ function create() {
         if (!players || !player_ids || !num_players) {
             // clear hand
             if (self.player_init) {
-                self.player.setHand([], window_width / 1920, window_height / 1080);
+                self.player.clearAll();
             }
 
             // clear enemies
             self.enemies.getChildren().forEach(function(enemy) {
-                enemy.setHand([], window_width / 1920, window_height / 1080, true);
+                enemy.clearAll();
             });
             for (let i = self.enemies.getLength() - 1; i >= 0; i--) {
                 self.enemies.remove(self.enemies.getChildren()[i], true);
@@ -76,8 +76,12 @@ function create() {
 
         if (self.player_init) {
             // update player hand
-            let player_hand = players.hasOwnProperty(self.io.id) ? players[self.io.id].hand : [];
-            self.player.setHand(player_hand, window_width / 1920, window_height / 1080);
+            if (players.hasOwnProperty(self.io.id)) {
+                self.player.setHand(players[self.io.id].hand, window_width / 1920, window_height / 1080);
+                self.player.setRevealed(players[self.io.id].revealed, window_width / 1920, window_height / 1080);
+            } else {
+                self.player.clearAll();
+            }
 
             let player_index = player_ids.indexOf(self.io.id);
             if (player_index < 0 || player_index >= num_players) {
@@ -111,14 +115,19 @@ function create() {
             for (let i = self.enemies.getLength() - 1; i >= 0; i--) {
                 let enemy_index = player_ids.indexOf(self.enemies.getChildren()[i].id);
                 if (enemy_index < 0 || enemy_index >= num_players) {
+                    self.enemies.getChildren()[i].clearAll();
                     self.enemies.remove(self.enemies.getChildren()[i], true);
                 }
             }
 
             // update enemy hands
             self.enemies.getChildren().forEach(function(enemy) {
-                let enemy_hand = players.hasOwnProperty(enemy.id) ? players[enemy.id].hand : [];
-                enemy.setHand(enemy_hand, window_width / 1920, window_height / 1080, true);
+                if (players.hasOwnProperty(enemy.id)) {
+                    enemy.setHand(players[enemy.id].hand, window_width / 1920, window_height / 1080, started);
+                    enemy.setRevealed(players[enemy.id].revealed, window_width / 1920, window_height / 1080);
+                } else {
+                    enemy.clearAll();
+                }
             });
         }
     });
@@ -127,11 +136,14 @@ function create() {
     // on player disconnect
     this.io.on('player_disconnect', function(player_id) {
         console.log(player_id, 'disconnected');
+        /*
         enemies_ref.getChildren().forEach(function(enemy) {
             if (enemy.id == player_id) {
+                enemy.clearAll();
                 enemies_ref.remove(enemy, true);
             }
         })
+        */
     });
 }
 

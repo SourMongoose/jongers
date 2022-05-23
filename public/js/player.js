@@ -4,8 +4,8 @@ class Player extends Phaser.Physics.Arcade.Sprite {
 
         scene.add.existing(this);
         scene.physics.add.existing(this);
-
         this.depth = 5;
+
         this.keyDown = false;
 
         this.scene = scene;
@@ -16,6 +16,23 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         // input handling
         this.keyStart = scene.input.keyboard.addKey('S');
         this.keyWin = scene.input.keyboard.addKey('W');
+    }
+
+    clearAll() {
+        this.clearHand();
+        this.clearRevealed();
+    }
+
+    clearHand() {
+        for (let i = this.hand.getLength() - 1; i >= 0; i--) {
+            this.hand.remove(this.hand.getChildren()[i], true);
+        }
+    }
+
+    clearRevealed() {
+        for (let i = this.revealed.getLength() - 1; i >= 0; i--) {
+            this.revealed.remove(this.revealed.getChildren()[i], true);
+        }
     }
 
     setHand(arr, scale_width, scale_height) {
@@ -31,9 +48,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         let margin = (window_width * scale_width - hand_width * scale) / 2;
 
         // remove previous elements
-        for (let i = this.hand.getLength() - 1; i >= 0; i--) {
-            this.hand.remove(this.hand.getChildren()[i], true);
-        }
+        this.clearHand();
 
         // add new tiles
         for (let i = 0; i < arr.length; i++) {
@@ -55,6 +70,32 @@ class Player extends Phaser.Physics.Arcade.Sprite {
             });
 
             this.hand.add(t);
+        }
+    }
+
+    setRevealed(arr, scale_width, scale_height) {
+        console.log('setRevealed player', arr);
+
+        let scale = Math.min(scale_width, scale_height);
+
+        let window_width = 1920;
+        let window_height = 1080;
+        let tile_width = 105;
+        let overlap = 0.185;
+        let hand_width = arr.length * tile_width * (1 - overlap) + tile_width * overlap;
+        let margin = (window_width * scale_width - hand_width * scale) / 2;
+
+        // remove previous elements
+        this.clearRevealed();
+
+        // add new tiles
+        for (let i = 0; i < arr.length; i++) {
+            let t = new Tile(this.scene,
+                margin + (tile_width / 2 + i * tile_width * (1 - overlap)) * scale,
+                window_height * scale_height - tile_width * scale * 3,
+                arr[i][0], arr[i][1], false);
+            t.setScale(tile_width / 740 * scale);
+            this.revealed.add(t);
         }
     }
 

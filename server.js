@@ -89,19 +89,19 @@ io.on('connection', function(socket) {
 
     socket.on('disconnect', function() {
         console.log('disconnect', socket.id);
-        delete players[socket.id];
 
         let i = player_ids.indexOf(socket.id);
         if (i != -1) {
-            player_ids.splice(i, 1);
-
             // if a player leaves an ongoing game
             if (started && i < num_players) {
                 started = false;
                 broadcast_update();
             }
+
+            player_ids.splice(i, 1);
         }
 
+        delete players[socket.id];
         socket.broadcast.emit('player_disconnect', socket.id);
     });
 });
@@ -183,7 +183,11 @@ function game_start(socket, is_fishy) {
         for (i = 0; i < num_players; i++) {
             players[player_ids[i]].hand.push(deck.pop());
         }
-        
+
+        // temporary for testing
+        for (i = 0; i < num_players; i++) {
+            players[player_ids[i]].revealed.push(deck.pop());
+        }
     }
     players[player_ids[pov]].hand.push(deck.pop());
 
