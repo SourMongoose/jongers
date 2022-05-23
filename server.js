@@ -44,7 +44,7 @@ io.on('connection', function(socket) {
     };
     player_ids.push(socket.id);
 
-    socket.emit('players', players);
+    socket.emit('game_info', players);
     //socket.broadcast.emit('new_player', players[socket.id]);
 
     socket.on('game_start', function(is_fishy) {
@@ -91,11 +91,15 @@ io.on('connection', function(socket) {
         console.log('disconnect', socket.id);
         delete players[socket.id];
 
-        // if a player leaves an ongoing game
         let i = player_ids.indexOf(socket.id);
         if (i != -1) {
             player_ids.splice(i, 1);
-            started = false;
+
+            // if a player leaves an ongoing game
+            if (started && i < num_players) {
+                started = false;
+                broadcast_update();
+            }
         }
 
         socket.broadcast.emit('player_disconnect', socket.id);
@@ -127,8 +131,7 @@ function next(tile) {
 
 // update all players with current game state
 function broadcast_update() {
-    io.sockets.emit('players', players);
-    io.sockets.emit('mid', mid);
+    io.sockets.emit('game_info', players, player_ids, num_players, mid, started);
 }
 
 // start a game
