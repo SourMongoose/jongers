@@ -319,7 +319,7 @@ function check(hand, i, p, t1, t2, t3, t4) {
 
 function win(socket) {
     // sanity checks
-    if (!started || players[socket.id].won || players[socket.id].hand.length % 3 != 1) {
+    if (!started || players[socket.id].won) {
         return;
     }
 
@@ -341,7 +341,7 @@ function win(socket) {
             players[socket.id].won = true;
             players[socket.id].revealed.push(players[socket.id].hand.pop())
         }
-    } else { // taking from middle
+    } else if (players[socket.id].hand.length % 3 != 1) { // taking from middle
         // make sure no one else has drawn
         for (let i = 0; i < num_players; i++) {
             if (players[player_ids[i]].hand.length % 3 != 1) {
@@ -369,6 +369,7 @@ function win(socket) {
         if (winning_hand(players[socket.id].hand.concat([get_mid_tile()]))) {
             players[socket.id].won = true;
             players[socket.id].revealed.push(take_mid());
+            player_ids.indexOf(socket.id);
         }
     }
 
