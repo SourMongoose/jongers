@@ -182,22 +182,11 @@ function game_start(socket, is_fishy) {
     pov = 0;
 
     // add tiles to hands
-    for (let _ = 0; _ < 7; _++) {
+    for (let _ = 0; _ < 13; _++) {
         for (let i = 0; i < num_players; i++) {
             players[player_ids[i]].hand.push(deck.pop());
         }
     }
-
-    for (let _ = 0; _ < 6; _++) {
-        for (let i = 0; i < num_players; i++) {
-            players[player_ids[i]].revealed.push(deck.pop());
-        }
-    }
-
-    for (let i = 0; deck.length > 1; i = (i + 1) % num_players) {
-        players[player_ids[i]].played.push(deck.pop());
-    }
-
     players[player_ids[pov]].hand.push(deck.pop());
 
     // sort hands
