@@ -61,7 +61,7 @@ function create() {
     createPlayer(this);
 
     // update game info
-    this.io.on('game_info', function(players, player_ids, num_players, mid, started, fishy) {
+    this.io.on('game_info', function(players, player_ids, num_players, pov, started, fishy) {
         // if these values are falsy, assume game has been reset
         if (!players || !player_ids || !num_players) {
             // clear hand
@@ -85,6 +85,7 @@ function create() {
             if (players.hasOwnProperty(self.io.id)) {
                 self.player.setRevealed(players[self.io.id].revealed, window_width / 1920, window_height / 1080);
                 self.player.setHand(players[self.io.id].hand, window_width / 1920, window_height / 1080);
+                self.player.setPlayed(players[self.io.id].played, window_width / 1920, window_height / 1080, num_players);
                 self.player.setButtons(fishy, window_width / 1920, window_height / 1080);
             } else {
                 self.player.clearAll();
@@ -132,6 +133,7 @@ function create() {
                 if (players.hasOwnProperty(enemy.id)) {
                     enemy.setHand(players[enemy.id].hand, window_width / 1920, window_height / 1080, started);
                     enemy.setRevealed(players[enemy.id].revealed, window_width / 1920, window_height / 1080);
+                    enemy.setPlayed(players[enemy.id].played, window_width / 1920, window_height / 1080, num_players);
                 } else {
                     enemy.clearAll();
                 }

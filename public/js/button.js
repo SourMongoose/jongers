@@ -11,7 +11,7 @@ class Button extends Phaser.Physics.Arcade.Image {
 
         let self = this;
         this.on('pointerover', function() {
-            self.setTint(0xffffff);
+            self.setTint(0xdddddd);
         });
         this.on('pointerout', function() {
             self.clearTint();

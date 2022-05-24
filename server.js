@@ -2,6 +2,7 @@ let express = require('express');
 let http = require('http');
 let path =  require('path');
 let socket_io = require('socket.io');
+const { isNull } = require('util');
 
 let port = 8080;
 
@@ -9,7 +10,7 @@ let players = {};
 let player_ids = [];
 
 // game variables
-let mid = [];
+let mid = ['', null];
 let deck = [];
 let pov = 0;
 let num_players = 0;
@@ -39,6 +40,7 @@ io.on('connection', function(socket) {
         player_id: socket.id,
         hand: [],
         revealed: [],
+        played: [],
         won: false,
         score: 0,
     };
@@ -131,7 +133,7 @@ function next(tile) {
 
 // update all players with current game state
 function broadcast_update() {
-    io.sockets.emit('game_info', players, player_ids, num_players, mid, started, fishy);
+    io.sockets.emit('game_info', players, player_ids, num_players, pov, started, fishy);
 }
 
 // start a game
@@ -145,10 +147,11 @@ function game_start(socket, is_fishy) {
     fishy = is_fishy;
     num_players = Math.min(4, player_ids.length);
 
-    mid = [];
+    mid = ['', null];
     for (let i = 0; i < num_players; i++) {
         players[player_ids[i]].hand = [];
         players[player_ids[i]].revealed = [];
+        players[player_ids[i]].played = [];
         players[player_ids[i]].won = false;
         players[player_ids[i]].score = 0;
     }
@@ -179,10 +182,20 @@ function game_start(socket, is_fishy) {
     pov = 0;
 
     // add tiles to hands
-    for (let _ = 0; _ < 13; _++) {
-        for (i = 0; i < num_players; i++) {
+    for (let _ = 0; _ < 7; _++) {
+        for (let i = 0; i < num_players; i++) {
             players[player_ids[i]].hand.push(deck.pop());
         }
+    }
+
+    for (let _ = 0; _ < 6; _++) {
+        for (let i = 0; i < num_players; i++) {
+            players[player_ids[i]].revealed.push(deck.pop());
+        }
+    }
+
+    for (let i = 0; deck.length > 1; i = (i + 1) % num_players) {
+        players[player_ids[i]].played.push(deck.pop());
     }
 
     players[player_ids[pov]].hand.push(deck.pop());
@@ -201,6 +214,22 @@ function next_player() {
     do {
         pov = (pov + 1) % num_players;
     } while (players[player_ids[pov]].won); // skip over players who have already won
+}
+
+// return mid tile
+function get_mid_tile() {
+    return mid[1];
+}
+
+// take the tile that was just played
+function take_mid() {
+    if (get_mid_tile() == null) {
+        return;
+    }
+
+    let mid_player_id = mid[0];
+    mid = ['', null];
+    return players[mid_player_id].played.pop();
 }
 
 // check if a hand is winning
@@ -331,6 +360,10 @@ function win(socket) {
             }
         }
 
+        if (get_mid_tile() == null) {
+            return;
+        }
+
         // two-suit rule
         const suits = new Set();
         players[socket.id].hand.forEach(function(tile) {
@@ -339,9 +372,14 @@ function win(socket) {
         players[socket.id].revealed.forEach(function(tile) {
             suits.add(tile[0]);
         });
-        suits.add(mid[mid.length - 1][0]);
+        suits.add(get_mid_tile()[0]);
         if (!fishy && suits.size > 2) {
             return;
+        }
+
+        if (winning_hand(players[socket.id].hand.concat([get_mid_tile()]))) {
+            players[socket.id].won = true;
+            players[socket.id].revealed.push(take_mid());
         }
     }
 
@@ -392,7 +430,7 @@ function take_triple(socket) {
 // attempt to take a set of size x from the middle
 function take_n(socket, x) {
     // sanity checks
-    if (!started || mid.length < 1) {
+    if (!started || get_mid_tile() == null) {
         return;
     }
 
@@ -404,10 +442,10 @@ function take_n(socket, x) {
     }
 
     // check that player has enough copies
-    if (count_occurences(players[socket.id].hand, mid[mid.length - 1]) >= x - 1) {
+    if (count_occurences(players[socket.id].hand, get_mid_tile()) >= x - 1) {
         let n = 0;
         for (let i = players[socket.id].hand.length - 1; i >= 0; i--) {
-            if (v(players[socket.id].hand[i]) == v(mid[mid.length - 1])) {
+            if (v(players[socket.id].hand[i]) == v(get_mid_tile())) {
                 players[socket.id].revealed.push(players[socket.id].hand.splice(i, 1)[0]);
                 n++;
             }
@@ -415,7 +453,7 @@ function take_n(socket, x) {
                 break;
             }
         }
-        players[socket.id].revealed.push(mid.pop())
+        players[socket.id].revealed.push(take_mid());
 
         pov = player_ids.indexOf(socket.id);
         broadcast_update();
@@ -424,7 +462,7 @@ function take_n(socket, x) {
 
 function take_chi(socket, num1, num2) {
     // sanity checks
-    if (!started || mid.length < 1) {
+    if (!started || get_mid_tile() == null) {
         return;
     }
 
@@ -433,9 +471,9 @@ function take_chi(socket, num1, num2) {
         return;
     }
 
-    let low = Math.min(mid[mid.length - 1][1], num1, num2);
+    let low = Math.min(get_mid_tile()[1], num1, num2);
 
-    let suit = mid[mid.length - 1][0];
+    let suit = get_mid_tile()[0];
 
     // keep track of which numbers are in hand
     let in_hand = [false, false, false, false, false, false, false, false, false];
@@ -446,11 +484,11 @@ function take_chi(socket, num1, num2) {
     });
 
     // check that all three numbers of the straight are present
-    if ([low, low + 1, low + 2].every((value) => in_hand[value] || mid[mid.length - 1][1] == value)) {
+    if ([low, low + 1, low + 2].every((value) => in_hand[value] || get_mid_tile()[1] == value)) {
         let took_mid = false;
         for (let x = low; x < low + 3; x++) {
-            if (!took_mid && mid[mid.length - 1][1] == x) {
-                players[socket.id].revealed.push(mid.pop())
+            if (!took_mid && get_mid_tile()[1] == x) {
+                players[socket.id].revealed.push(take_mid());
                 took_mid = true;
             } else {
                 for (let i = 0; i < players[socket.id].hand.length; i++) {
@@ -527,6 +565,8 @@ function draw_tile(socket) {
         return;
     }
 
+    mid = ['', null];
+
     // no more tiles left
     if (deck.length == 0) {
         started = false;
@@ -552,7 +592,9 @@ function play_tile(socket, suit, num) {
     // search hand for a matching tile, and remove it
     for (let i = players[socket.id].hand.length - 1; i >= 0; i--) {
         if (players[socket.id].hand[i][0] == suit && players[socket.id].hand[i][1] == num) {
-            mid.push(players[socket.id].hand.splice(i, 1)[0]);
+            let tile = players[socket.id].hand.splice(i, 1)[0];
+            mid = [socket.id, tile];
+            players[socket.id].played.push(tile);
             players[socket.id].hand.sort((a, b) => v(a) - v(b));
             next_player();
             broadcast_update();
