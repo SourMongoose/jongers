@@ -227,13 +227,18 @@ function winning_hand(hand) {
         return false;
     }
 
-    hand.sort((a, b) => v(a) - v(b));
+    let hand_copy = [];
+    hand.forEach(function(tile) {
+        hand_copy.push(tile);
+    })
+
+    hand_copy.sort((a, b) => v(a) - v(b));
 
     // 7 pairs
-    if (hand.length == 14) {
+    if (hand_copy.length == 14) {
         let works = true;
         for (let i = 0; i < 14; i += 2) {
-            if (v(hand[i]) != v(hand[i + 1])) {
+            if (v(hand_copy[i]) != v(hand_copy[i + 1])) {
                 works = false;
                 break;
             }
@@ -244,7 +249,7 @@ function winning_hand(hand) {
     }
 
     // otherwise, just check for 4 triples and a pair
-    return check(hand, 0, [], [], [], [], []);
+    return check(hand_copy, 0, [], [], [], [], []);
 }
 
 // recursive helper function
