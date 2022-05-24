@@ -49,6 +49,8 @@ function preload() {
         this.load.image(buttons[i], 'public/img/buttons/' + buttons[i] + '.png');
     }
 
+    this.load.image('arrow', 'public/img/arrow.png');
+
     this.load.image('player', 'public/img/blank.png');
     this.load.image('enemy', 'public/img/blank.png');
 }
@@ -81,17 +83,25 @@ function create() {
         }
 
         if (self.player_init) {
+            let player_index = player_ids.indexOf(self.io.id);
+
+            let player_pov = (player_index < 0 || player_index >= num_players) ? 0 : player_index;
+            let pov_position = 0;
+            while (player_pov != pov) {
+                player_pov = (player_pov + 1) % num_players;
+                pov_position++;
+            }
+
             // update player hand
             if (players.hasOwnProperty(self.io.id)) {
                 self.player.setRevealed(players[self.io.id].revealed, window_width / 1920, window_height / 1080);
                 self.player.setHand(players[self.io.id].hand, window_width / 1920, window_height / 1080);
-                self.player.setPlayed(players[self.io.id].played, window_width / 1920, window_height / 1080, num_players);
+                self.player.setPlayed(players[self.io.id].played, window_width / 1920, window_height / 1080, num_players, pov_position);
                 self.player.setButtons(fishy, window_width / 1920, window_height / 1080);
             } else {
                 self.player.clearAll();
             }
-
-            let player_index = player_ids.indexOf(self.io.id);
+            
             if (player_index < 0 || player_index >= num_players) {
                 return;
             }

@@ -14,6 +14,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         this.revealed = scene.physics.add.group();
         this.played = scene.physics.add.group();
         this.buttons = scene.physics.add.group();
+        this.images = scene.physics.add.group();
 
         // graphics constants
         this.window_width = 1920;
@@ -39,6 +40,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         this.clearRevealed();
         this.clearPlayed();
         this.clearButtons();
+        this.clearImages();
     }
 
     clearHand() {
@@ -62,6 +64,12 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     clearButtons() {
         for (let i = this.buttons.getLength() - 1; i >= 0; i--) {
             this.buttons.remove(this.buttons.getChildren()[i], true);
+        }
+    }
+
+    clearImages() {
+        for (let i = this.images.getLength() - 1; i >= 0; i--) {
+            this.images.remove(this.images.getChildren()[i], true);
         }
     }
 
@@ -120,13 +128,14 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
-    setPlayed(arr, scale_width, scale_height, num_players) {
-        console.log('setPlayed player', arr);
+    setPlayed(arr, scale_width, scale_height, num_players, pov_position) {
+        console.log('setPlayed player', arr, pov_position);
 
         let scale = Math.min(scale_width, scale_height);
 
         // remove previous elements
         this.clearPlayed();
+        this.clearImages();
 
         let num_rows = 3;
         let num_columns = Math.ceil(((136 - 13 * num_players) / num_players + num_players) / num_rows);
@@ -153,6 +162,15 @@ class Player extends Phaser.Physics.Arcade.Sprite {
                 this.played.add(t);
             }
         }
+
+        // add pov arrow
+        let a = new SimpleImage(this.scene,
+            this.window_width / 2 * scale_width,
+            this.window_height / 2 * scale_height - this.played_tile_height * scale,
+            'arrow');
+        a.setScale(this.played_tile_height / 2 / 1067 * scale);
+        a.setAngle((pov_position + 1) * 90);
+        this.images.add(a);
     }
 
     setButtons(is_fishy, scale_width, scale_height) {

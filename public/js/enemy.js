@@ -126,7 +126,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
-    setPlayed(arr, scale_width, scale_height, num_players) {
+    setPlayed(arr, scale_width, scale_height, num_players, pov_id) {
         console.log('setPlayed', this.id, arr);
 
         let scale = Math.min(scale_width, scale_height);
