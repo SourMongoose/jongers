@@ -374,19 +374,20 @@ function win(socket) {
 
     // if the player wins, update
     if (players[socket.id].won) {
-        next_player();
-        broadcast_update();
-    }
-
-    // check if all players (but 1) have won
-    let count = 0;
-    for (let i = 0; i < num_players; i++) {
-        if (players[player_ids[i]].won) {
-            count++;
+        // check if all players (but 1) have won
+        let count = 0;
+        for (let i = 0; i < num_players; i++) {
+            if (players[player_ids[i]].won) {
+                count++;
+            }
         }
-    }
-    if (count + 1 >= num_players) {
-        started = false;
+        if (count + 1 >= num_players) {
+            started = false;
+        } else {
+            next_player();
+        }
+
+        broadcast_update();
     }
 }
 
