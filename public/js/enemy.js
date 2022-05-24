@@ -16,9 +16,9 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         // graphics constants
         this.window_width = 1920;
         this.window_height = 1080;
-        this.hand_tile_width = 50;
+        this.hand_tile_width = 65;
         this.hand_tile_height = this.hand_tile_width * 899 / 740;
-        this.revealed_tile_width = 50;
+        this.revealed_tile_width = 65;
         this.revealed_tile_height = this.revealed_tile_width * 899 / 740;
         this.overlap = 0.185;
         this.margin = 10;
@@ -49,25 +49,27 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         // remove previous elements
         this.clearHand();
 
+        let total_width = arr.length * this.hand_tile_width * (1 - this.overlap) + this.hand_tile_width * this.overlap;
+
         // add new tiles
         for (let i = 0; i < arr.length; i++) {
             let t;
             if (this.position == 1) { // left
                 t = new Tile(this.scene,
                     (this.margin + this.hand_tile_height / 2) * scale,
-                    (this.margin + this.hand_tile_width / 2 + (arr.length - i - 1) * this.hand_tile_width * (1 - this.overlap)) * scale,
+                    this.window_height / 2 * scale_height + (total_width / 2 - this.hand_tile_width / 2 - i * this.hand_tile_width * (1 - this.overlap)) * scale,
                     arr[i][0], arr[i][1], hidden);
                 t.setAngle(-90);
             } else if (this.position == 2) { // top
                 t = new Tile(this.scene,
-                    this.window_width * scale_width - (this.margin + this.hand_tile_width / 2 + (arr.length - i - 1) * this.hand_tile_width * (1 - this.overlap)) * scale,
+                    this.window_width / 2 * scale_width - (total_width / 2 - this.hand_tile_width / 2 - i * this.hand_tile_width * (1 - this.overlap)) * scale,
                     (this.margin + this.hand_tile_height / 2) * scale,
                     arr[i][0], arr[i][1], hidden);
                 t.setAngle(0);
             } else if (this.position == 3) { // right
                 t = new Tile(this.scene,
                     this.window_width * scale_width - (this.margin + this.hand_tile_height / 2) * scale,
-                    this.window_height * scale_height - (this.margin + this.hand_tile_width / 2 + (arr.length - i - 1) * this.hand_tile_width * (1 - this.overlap)) * scale,
+                    this.window_height / 2 * scale_height - (total_width / 2 - this.hand_tile_width / 2 - i * this.hand_tile_width * (1 - this.overlap)) * scale,
                     arr[i][0], arr[i][1], hidden);
                 t.setAngle(90);
             }
@@ -84,25 +86,27 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         // remove previous elements
         this.clearRevealed();
 
+        let total_width = arr.length * this.revealed_tile_width * (1 - this.overlap) + this.revealed_tile_width * this.overlap;
+
         // add new tiles
         for (let i = 0; i < arr.length; i++) {
             let t;
             if (this.position == 1) { // left
                 t = new Tile(this.scene,
                     (this.margin * 2 + this.hand_tile_height + this.revealed_tile_height / 2) * scale,
-                    (this.margin + this.revealed_tile_width / 2 + (arr.length - i - 1) * this.revealed_tile_width * (1 - this.overlap)) * scale,
+                    this.window_height / 2 * scale_height + (total_width / 2 - this.revealed_tile_width / 2 - i * this.revealed_tile_width * (1 - this.overlap)) * scale,
                     arr[i][0], arr[i][1], false);
                 t.setAngle(-90);
             } else if (this.position == 2) { // top
                 t = new Tile(this.scene,
-                    this.window_width * scale_width - (this.margin + this.revealed_tile_width / 2 + (arr.length - i - 1) * this.revealed_tile_width * (1 - this.overlap)) * scale,
+                    this.window_width / 2 * scale_width - (total_width / 2 - this.revealed_tile_width / 2 - i * this.revealed_tile_width * (1 - this.overlap)) * scale,
                     (this.margin * 2 + this.hand_tile_height + this.revealed_tile_height / 2) * scale,
                     arr[i][0], arr[i][1], false);
                 t.setAngle(0);
             } else if (this.position == 3) { // right
                 t = new Tile(this.scene,
                     this.window_width * scale_width - (this.margin * 2 + this.hand_tile_height + this.revealed_tile_height / 2) * scale,
-                    this.window_height * scale_height - (this.margin + this.revealed_tile_width / 2 + (arr.length - i - 1) * this.revealed_tile_width * (1 - this.overlap)) * scale,
+                    this.window_height / 2 * scale_height - (total_width / 2 - this.revealed_tile_width / 2 - i * this.revealed_tile_width * (1 - this.overlap)) * scale,
                     arr[i][0], arr[i][1], false);
                 t.setAngle(90);
             }

@@ -16,9 +16,9 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         // graphics constants
         this.window_width = 1920;
         this.window_height = 1080;
-        this.hand_tile_width = 135;
+        this.hand_tile_width = 115;
         this.hand_tile_height = this.hand_tile_width * 899 / 740;
-        this.revealed_tile_width = 105;
+        this.revealed_tile_width = 75;
         this.revealed_tile_height = this.revealed_tile_width * 899 / 740;
         this.overlap = 0.185;
         this.margin = 10;
@@ -53,10 +53,12 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         // remove previous elements
         this.clearHand();
 
+        let total_width = arr.length * this.hand_tile_width * (1 - this.overlap) + this.hand_tile_width * this.overlap;
+
         // add new tiles
         for (let i = 0; i < arr.length; i++) {
             let t = new Tile(this.scene,
-                (this.margin + this.hand_tile_width / 2 + i * this.hand_tile_width * (1 - this.overlap)) * scale,
+                this.window_width / 2 * scale_width - (total_width / 2 - (i + 0.5) * this.hand_tile_width * (1 - this.overlap)) * scale,
                 this.window_height * scale_height - (this.hand_tile_height / 2 + this.margin) * scale,
                 arr[i][0], arr[i][1], false);
             t.setScale(this.hand_tile_width / 740 * scale);
@@ -85,10 +87,12 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         // remove previous elements
         this.clearRevealed();
 
+        let total_width = arr.length * this.revealed_tile_width * (1 - this.overlap) + this.revealed_tile_width * this.overlap;
+
         // add new tiles
         for (let i = 0; i < arr.length; i++) {
             let t = new Tile(this.scene,
-                (this.margin + this.revealed_tile_width / 2 + i * this.revealed_tile_width * (1 - this.overlap)) * scale,
+                this.window_width / 2 * scale_width - (total_width / 2 - (i + 0.5) * this.revealed_tile_width * (1 - this.overlap)) * scale,
                 this.window_height * scale_height - (this.hand_tile_height + this.revealed_tile_height / 2 + this.margin * 2) * scale,
                 arr[i][0], arr[i][1], false);
             t.setScale(this.revealed_tile_width / 740 * scale);
