@@ -346,7 +346,7 @@ function win(socket) {
             players[socket.id].won = true;
             players[socket.id].revealed.push(players[socket.id].hand.pop())
         }
-    } else if (players[socket.id].hand.length % 3 != 1) { // taking from middle
+    } else if (players[socket.id].hand.length % 3 == 1) { // taking from middle
         // make sure no one else has drawn
         for (let i = 0; i < num_players; i++) {
             if (players[player_ids[i]].hand.length % 3 != 1) {
