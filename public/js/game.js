@@ -43,6 +43,12 @@ function preload() {
     }
     this.load.image('back', 'public/img/tiles_png/back.png');
 
+    // load button images
+    let buttons = ['draw', 'play', 'triple', 'quad', 'eat', 'win'];
+    for (let i = 0; i < buttons.length; i++) {
+        this.load.image(buttons[i], 'public/img/buttons/' + buttons[i] + '.png');
+    }
+
     this.load.image('player', 'public/img/blank.png');
     this.load.image('enemy', 'public/img/blank.png');
 }
@@ -55,7 +61,7 @@ function create() {
     createPlayer(this);
 
     // update game info
-    this.io.on('game_info', function(players, player_ids, num_players, mid, started) {
+    this.io.on('game_info', function(players, player_ids, num_players, mid, started, fishy) {
         // if these values are falsy, assume game has been reset
         if (!players || !player_ids || !num_players) {
             // clear hand
@@ -79,6 +85,7 @@ function create() {
             if (players.hasOwnProperty(self.io.id)) {
                 self.player.setRevealed(players[self.io.id].revealed, window_width / 1920, window_height / 1080);
                 self.player.setHand(players[self.io.id].hand, window_width / 1920, window_height / 1080);
+                self.player.setButtons(fishy, window_width / 1920, window_height / 1080);
             } else {
                 self.player.clearAll();
             }

@@ -67,7 +67,7 @@ io.on('connection', function(socket) {
         take_triple(socket);
     });
 
-    socket.on('take_chi', function(low) {
+    socket.on('take_chi', function(num1, num2) {
         console.log('take_chi', socket.id);
         take_chi(socket, low);
     });
@@ -131,7 +131,7 @@ function next(tile) {
 
 // update all players with current game state
 function broadcast_update() {
-    io.sockets.emit('game_info', players, player_ids, num_players, mid, started);
+    io.sockets.emit('game_info', players, player_ids, num_players, mid, started, fishy);
 }
 
 // start a game
@@ -183,12 +183,8 @@ function game_start(socket, is_fishy) {
         for (i = 0; i < num_players; i++) {
             players[player_ids[i]].hand.push(deck.pop());
         }
-
-        // temporary for testing
-        for (i = 0; i < num_players; i++) {
-            players[player_ids[i]].revealed.push(deck.pop());
-        }
     }
+
     players[player_ids[pov]].hand.push(deck.pop());
 
     // sort hands
@@ -380,6 +376,11 @@ function count_occurences(hand, tile) {
 
 // attempt to take a quad from the middle
 function take_quad(socket) {
+    // cannot quad if deck is empty
+    if (deck.length == 0) {
+        return;
+    }
+
     take_n(socket, 4);
 }
 
@@ -421,16 +422,18 @@ function take_n(socket, x) {
     }
 }
 
-function take_chi(socket, low) {
+function take_chi(socket, num1, num2) {
     // sanity checks
     if (!started || mid.length < 1) {
         return;
     }
 
     // make sure it is your turn
-    if (socket.id != player_ids[pov]) {
+    if (socket.id != player_ids[pov] || players[socket.id].hand.length % 3 != 1) {
         return;
     }
+
+    let low = Math.min(mid[mid.length - 1][1], num1, num2);
 
     let suit = mid[mid.length - 1][0];
 
@@ -469,8 +472,13 @@ function show_quad(socket) {
         return;
     }
 
-    // make sure it is your turn
-    if (socket.id != player_ids[pov]) {
+    // cannot quad if deck is empty
+    if (deck.length == 0) {
+        return;
+    }
+
+    // make sure it is your turn and you have drawn
+    if (socket.id != player_ids[pov] || players[socket.id].hand.length % 3 != 2) {
         return;
     }
 
@@ -515,7 +523,7 @@ function draw_tile(socket) {
     }
 
     // make sure it is your turn
-    if (socket.id != player_ids[pov]) {
+    if (socket.id != player_ids[pov] || players[socket.id].hand.length % 3 != 1) {
         return;
     }
 
@@ -537,7 +545,7 @@ function play_tile(socket, suit, num) {
     }
 
     // make sure it is your turn
-    if (socket.id != player_ids[pov]) {
+    if (socket.id != player_ids[pov] || players[socket.id].hand.length % 3 != 2) {
         return;
     }
 

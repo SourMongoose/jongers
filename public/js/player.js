@@ -12,6 +12,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
 
         this.hand = scene.physics.add.group();
         this.revealed = scene.physics.add.group();
+        this.buttons = scene.physics.add.group();
 
         // graphics constants
         this.window_width = 1920;
@@ -22,15 +23,17 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         this.revealed_tile_height = this.revealed_tile_width * 899 / 740;
         this.overlap = 0.185;
         this.margin = 10;
+        this.button_width = 115;
+        this.button_height = this.button_width * 757 / 1513;
 
         // input handling
         this.keyStart = scene.input.keyboard.addKey('S');
-        this.keyWin = scene.input.keyboard.addKey('W');
     }
 
     clearAll() {
         this.clearHand();
         this.clearRevealed();
+        this.clearButtons();
     }
 
     clearHand() {
@@ -42,6 +45,12 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     clearRevealed() {
         for (let i = this.revealed.getLength() - 1; i >= 0; i--) {
             this.revealed.remove(this.revealed.getChildren()[i], true);
+        }
+    }
+
+    clearButtons() {
+        for (let i = this.buttons.getLength() - 1; i >= 0; i--) {
+            this.buttons.remove(this.buttons.getChildren()[i], true);
         }
     }
 
@@ -58,7 +67,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         // add new tiles
         for (let i = 0; i < arr.length; i++) {
             let t = new Tile(this.scene,
-                this.window_width / 2 * scale_width - (total_width / 2 - (i + 0.5) * this.hand_tile_width * (1 - this.overlap)) * scale,
+                this.window_width / 2 * scale_width - (total_width / 2 - this.hand_tile_width / 2 - i * this.hand_tile_width * (1 - this.overlap)) * scale,
                 this.window_height * scale_height - (this.hand_tile_height / 2 + this.margin) * scale,
                 arr[i][0], arr[i][1], false);
             t.setScale(this.hand_tile_width / 740 * scale);
@@ -92,11 +101,75 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         // add new tiles
         for (let i = 0; i < arr.length; i++) {
             let t = new Tile(this.scene,
-                this.window_width / 2 * scale_width - (total_width / 2 - (i + 0.5) * this.revealed_tile_width * (1 - this.overlap)) * scale,
+                this.window_width / 2 * scale_width - (total_width / 2 - this.revealed_tile_width / 2 - i * this.revealed_tile_width * (1 - this.overlap)) * scale,
                 this.window_height * scale_height - (this.hand_tile_height + this.revealed_tile_height / 2 + this.margin * 2) * scale,
                 arr[i][0], arr[i][1], false);
             t.setScale(this.revealed_tile_width / 740 * scale);
             this.revealed.add(t);
+        }
+    }
+
+    setButtons(is_fishy, scale_width, scale_height) {
+        console.log('setButtons');
+
+        let scale = Math.min(scale_width, scale_height);
+
+        // remove previous elements
+        this.clearButtons();
+
+        let buttons = is_fishy ? ['draw', 'play', 'eat', 'triple', 'quad', 'win'] : ['draw', 'play', 'triple', 'quad', 'win'];
+
+        let total_width = buttons.length * this.button_width + (buttons.length - 1) * this.margin;
+
+        // add buttons
+        for (let i = 0; i < buttons.length; i++) {
+            let b = new Button(this.scene,
+                this.window_width / 2 * scale_width - (total_width / 2 - this.button_width / 2 - i * (this.button_width + this.margin)) * scale,
+                this.window_height * scale_height - (this.hand_tile_height + this.revealed_tile_height + this.button_height / 2 + this.margin * 3) * scale,
+                buttons[i]);
+            b.setScale(this.button_width / 1513 * scale);
+
+            b.setInteractive();
+            let self = this;
+            b.on('pointerdown', function() {
+                if (buttons[i] == 'draw') {
+                    self.scene.io.emit('draw_tile');
+                } else if (buttons[i] == 'play') {
+                    // make sure one tile is selected
+                    let selected_tiles = [];
+                    self.hand.getChildren().forEach(function(tile) {
+                        if (tile.selected) {
+                            selected_tiles.push([tile.suit, tile.num]);
+                        }
+                    });
+                    console.log(selected_tiles);
+
+                    if (selected_tiles.length == 1) {
+                        self.scene.io.emit('play_tile', selected_tiles[0][0], selected_tiles[0][1]);
+                    }
+                } else if (buttons[i] == 'eat') {
+                    // make sure two other tiles are selected
+                    let selected_tiles = [];
+                    self.hand.getChildren().forEach(function(tile) {
+                        if (tile.selected) {
+                            selected_tiles.push([tile.suit, tile.num]);
+                        }
+                    });
+
+                    if (selected_tiles.length == 2) {
+                        self.scene.io.emit('take_chi', selected_tiles[0][1], selected_tiles[1][1]);
+                    }
+                } else if (buttons[i] == 'triple') {
+                    self.scene.io.emit('take_triple');
+                } else if (buttons[i] == 'quad') {
+                    self.scene.io.emit('take_quad');
+                    self.scene.io.emit('show_quad');
+                } else if (buttons[i] == 'win') {
+                    self.scene.io.emit('win');
+                }
+            });
+
+            this.buttons.add(b);
         }
     }
 
@@ -107,11 +180,6 @@ class Player extends Phaser.Physics.Arcade.Sprite {
                 this.scene.io.emit('game_start', false);
             }
             return;
-        } else if (this.keyWin.isDown) {
-            if (!this.keyDown) {
-                this.keyDown = true;
-                this.scene.io.emit('win');
-            }
         } else {
             this.keyDown = false;
         }
