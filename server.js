@@ -75,7 +75,7 @@ io.on('connection', function(socket) {
 
     socket.on('take_chi', function(num1, num2) {
         console.log('take_chi', socket.id);
-        take_chi(socket, low);
+        take_chi(socket, num1, num2);
     });
 
     socket.on('show_quad', function() {
