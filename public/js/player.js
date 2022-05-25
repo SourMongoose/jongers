@@ -33,6 +33,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
 
         // input handling
         this.keyStart = scene.input.keyboard.addKey('S');
+        this.keyFishy = scene.input.keyboard.addKey('F');
     }
 
     clearAll() {
@@ -243,6 +244,11 @@ class Player extends Phaser.Physics.Arcade.Sprite {
                 this.scene.io.emit('game_start', false);
             }
             return;
+        } else if (this.keyFishy.isDown) {
+            if (!this.keyDown) {
+                this.keyDown = true;
+                this.scene.io.emit('game_start', true);
+            }
         } else {
             this.keyDown = false;
         }
