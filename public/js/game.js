@@ -47,6 +47,8 @@ function preload() {
     let buttons = ['draw', 'play', 'triple', 'quad', 'eat', 'win'];
     for (let i = 0; i < buttons.length; i++) {
         this.load.image(buttons[i], 'public/img/buttons/' + buttons[i] + '.png');
+        this.load.image(buttons[i] + '_chinese', 'public/img/buttons/' + buttons[i] + '_chinese.png');
+        this.load.image(buttons[i] + '_english', 'public/img/buttons/' + buttons[i] + '_english.png');
     }
 
     this.load.image('arrow', 'public/img/arrow.png');
