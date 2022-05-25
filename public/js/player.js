@@ -143,8 +143,8 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         let total_width = num_columns * this.played_tile_width * (1 - this.overlap) + this.played_tile_width * this.overlap;
 
         // add new tiles
-        for (let r = 0; r < num_rows; r++) {
-            for (let c = num_columns - 1; c >= 0; c--) {
+        for (let r = num_rows - 1; r >= 0; r--) {
+            for (let c = 0; c < num_columns; c++) {
                 if (r * num_columns >= arr.length) {
                     continue;
                 }
@@ -158,7 +158,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
                     this.window_height / 2 * scale_height + (this.played_tile_height + r * this.played_tile_height * (1 - this.overlap_vertical) - this.played_tile_height) * scale,
                     arr[i][0], arr[i][1], false);
                 t.setScale(this.played_tile_width / 740 * scale);
-                t.setAngle(180);
+                t.setAngle(0);
                 this.played.add(t);
             }
         }

@@ -46,12 +46,16 @@ io.on('connection', function(socket) {
     };
     player_ids.push(socket.id);
 
-    socket.emit('game_info', players);
+    socket.emit('game_info', players, player_ids, num_players, pov, started, fishy);
     //socket.broadcast.emit('new_player', players[socket.id]);
 
     socket.on('game_start', function(is_fishy) {
-        console.log('game_start', socket.id);
-        game_start(socket, is_fishy);
+        if (started) {
+            socket.emit('game_info', players, player_ids, num_players, pov, started, fishy);
+        } else {
+            console.log('game_start', socket.id);
+            game_start(socket, is_fishy);
+        }
     });
 
     socket.on('win', function() {

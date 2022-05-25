@@ -65,7 +65,13 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         // add new tiles
         for (let i = 0; i < arr.length; i++) {
             let t;
-            if (this.position == 1) { // left
+            if (this.position == 0) { // bottom
+                t = new Tile(this.scene,
+                    this.window_width / 2 * scale_width - (total_width / 2 - this.hand_tile_width / 2 - i * this.hand_tile_width * (1 - this.overlap)) * scale,
+                    this.window_height * scale_height - (this.hand_tile_height / 2 + this.margin) * scale,
+                    arr[i][0], arr[i][1], hidden);
+                t.setAngle(0);
+            } else if (this.position == 1) { // left
                 t = new Tile(this.scene,
                     (this.margin + this.hand_tile_height / 2) * scale,
                     this.window_height / 2 * scale_height + (total_width / 2 - this.hand_tile_width / 2 - i * this.hand_tile_width * (1 - this.overlap)) * scale,
@@ -102,7 +108,13 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         // add new tiles
         for (let i = 0; i < arr.length; i++) {
             let t;
-            if (this.position == 1) { // left
+            if (this.position == 0) { // bottom
+                t = new Tile(this.scene,
+                    this.window_width / 2 * scale_width - (total_width / 2 - this.revealed_tile_width / 2 - i * this.revealed_tile_width * (1 - this.overlap)) * scale,
+                    this.window_height * scale_height - (this.hand_tile_height + this.revealed_tile_height / 2 + this.margin * 2) * scale,
+                    arr[i][0], arr[i][1], false);
+                t.setAngle(0);
+            } else if (this.position == 1) { // left
                 t = new Tile(this.scene,
                     (this.margin * 2 + this.hand_tile_height + this.revealed_tile_height / 2) * scale,
                     this.window_height / 2 * scale_height + (total_width / 2 - this.revealed_tile_width / 2 - (arr.length - i - 1) * this.revealed_tile_width * (1 - this.overlap)) * scale,
@@ -126,7 +138,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
-    setPlayed(arr, scale_width, scale_height, num_players, pov_id) {
+    setPlayed(arr, scale_width, scale_height, num_players) {
         console.log('setPlayed', this.id, arr);
 
         let scale = Math.min(scale_width, scale_height);
@@ -139,7 +151,27 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         let mid_width = mid_columns * this.played_tile_width * (1 - this.overlap) + this.played_tile_width * this.overlap;
 
         // add new tiles
-        if (this.position == 1) { // left
+        if (this.position == 0) { // bottom
+            for (let r = mid_rows - 1; r >= 0; r--) {
+                for (let c = 0; c < mid_columns; c++) {
+                    if (r * mid_columns >= arr.length) {
+                        continue;
+                    }
+                    let i = r * mid_columns + c;
+                    if (i >= arr.length) {
+                        continue;
+                    }
+    
+                    let t = new Tile(this.scene,
+                        this.window_width / 2 * scale_width - (mid_width / 2 - this.played_tile_width / 2 - c * this.played_tile_width * (1 - this.overlap)) * scale,
+                        this.window_height / 2 * scale_height + (this.played_tile_height + r * this.played_tile_height * (1 - this.overlap_vertical) - this.played_tile_height) * scale,
+                        arr[i][0], arr[i][1], false);
+                    t.setAngle(0);
+                    t.setScale(this.played_tile_width / 740 * scale);
+                    this.played.add(t);
+                }
+            }
+        } else if (this.position == 1) { // left
             let num_rows = 4;
             let num_columns = Math.ceil(((136 - 13 * num_players) / num_players + num_players) / num_rows);
     

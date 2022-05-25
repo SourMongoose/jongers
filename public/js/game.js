@@ -99,19 +99,29 @@ function create() {
                 self.player.setRevealed(players[self.io.id].revealed, window_width / 1920, window_height / 1080);
                 self.player.setHand(players[self.io.id].hand, window_width / 1920, window_height / 1080);
                 self.player.setPlayed(players[self.io.id].played, window_width / 1920, window_height / 1080, num_players, pov_position);
-                self.player.setButtons(fishy, window_width / 1920, window_height / 1080);
+                if (player_index >= 0 && player_index < num_players) {
+                    self.player.setButtons(fishy, window_width / 1920, window_height / 1080);
+                } else {
+                    self.player.clearButtons();
+                }
             } else {
                 self.player.clearAll();
             }
             
+            /*
             if (player_index < 0 || player_index >= num_players) {
                 return;
             }
+            */
 
             // update enemies group
-            for (let pos = 1; pos < num_players; pos++) {
+            for (let pos = 0; pos < num_players; pos++) {
                 let enemy_index = (player_index + pos) % num_players;
                 let enemy_id = player_ids[enemy_index];
+
+                if (enemy_id == self.io.id) {
+                    continue;
+                }
 
                 console.log('updating enemy ' + pos + ':', player_ids[enemy_index]);
 
@@ -143,7 +153,8 @@ function create() {
             // update enemy hands
             self.enemies.getChildren().forEach(function(enemy) {
                 if (players.hasOwnProperty(enemy.id)) {
-                    enemy.setHand(players[enemy.id].hand, window_width / 1920, window_height / 1080, started);
+                    let hide_enemy = (player_index >= 0 && player_index < num_players) && started && !players[self.io.id].won;
+                    enemy.setHand(players[enemy.id].hand, window_width / 1920, window_height / 1080, hide_enemy);
                     enemy.setRevealed(players[enemy.id].revealed, window_width / 1920, window_height / 1080);
                     enemy.setPlayed(players[enemy.id].played, window_width / 1920, window_height / 1080, num_players);
                 } else {
