@@ -123,8 +123,8 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
-    setPlayed(arr, scale_width, scale_height, num_players, pov_position) {
-        console.log('setPlayed player', arr, pov_position);
+    setPlayed(arr, scale_width, scale_height, num_players, pov_position, deck_length) {
+        console.log('setPlayed player', arr, pov_position, deck_length);
 
         let scale = Math.min(scale_width, scale_height);
 
@@ -166,6 +166,27 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         a.setScale(this.played_tile_height / 2 / 128 * scale);
         a.setAngle((pov_position + 1) * 90);
         this.images.add(a);
+
+        // add deck
+        let d = new SimpleImage(this.scene,
+            (this.margin + this.hand_tile_width / 2) * scale,
+            this.window_height * scale_height - (this.margin + this.hand_tile_height / 2) * scale,
+            'back');
+        d.setScale(this.hand_tile_width / this.tile_width * scale);
+        this.images.add(d);
+        if (deck_length) {
+            let style = {
+                font: Math.round(this.hand_tile_width / 3 * scale) + 'px Arial',
+                fill: '#ffffff',
+                align: 'center',
+            };
+            let d_text = this.scene.add.text((this.margin + this.hand_tile_width / 2 * (1 - this.overlap)) * scale,
+                this.window_height * scale_height - (this.margin + this.hand_tile_height / 2 * (1 - this.overlap_vertical)) * scale,
+                deck_length + '', style);
+            d_text.setDepth(6);
+            d_text.setOrigin(0.5);
+            this.images.add(d_text);
+        }
     }
 
     setButtons(is_fishy, delay, scale_width, scale_height) {

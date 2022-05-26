@@ -66,7 +66,7 @@ function create() {
     createPlayer(this);
 
     // update game info
-    this.io.on('game_info', function(players, player_ids, num_players, pov, started, fishy) {
+    this.io.on('game_info', function(players, player_ids, num_players, pov, deck_length, started, fishy) {
         // if these values are falsy, assume game has been reset
         if (!players || !player_ids || !num_players) {
             // clear hand
@@ -99,7 +99,7 @@ function create() {
             if (players.hasOwnProperty(self.io.id)) {
                 self.player.setRevealed(players[self.io.id].revealed, window_width / 1920, window_height / 1080);
                 self.player.setHand(players[self.io.id].hand, window_width / 1920, window_height / 1080);
-                self.player.setPlayed(players[self.io.id].played, window_width / 1920, window_height / 1080, num_players, pov_position);
+                self.player.setPlayed(players[self.io.id].played, window_width / 1920, window_height / 1080, num_players, pov_position, deck_length);
                 if (player_index >= 0 && player_index < num_players) {
                     self.player.setButtons(fishy, players[self.io.id].delay, window_width / 1920, window_height / 1080);
                 } else {

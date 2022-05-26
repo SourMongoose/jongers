@@ -144,7 +144,7 @@ function next(tile) {
 
 // update all players with current game state
 function broadcast_update() {
-    io.sockets.emit('game_info', players, player_ids, num_players, pov, started, fishy);
+    io.sockets.emit('game_info', players, player_ids, num_players, pov, deck.length, started, fishy);
 }
 
 // start a game
