@@ -49,33 +49,23 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     clearHand() {
-        for (let i = this.hand.getLength() - 1; i >= 0; i--) {
-            this.hand.remove(this.hand.getChildren()[i], true);
-        }
+        this.hand.clear(true, true);
     }
 
     clearRevealed() {
-        for (let i = this.revealed.getLength() - 1; i >= 0; i--) {
-            this.revealed.remove(this.revealed.getChildren()[i], true);
-        }
+        this.revealed.clear(true, true);
     }
 
     clearPlayed() {
-        for (let i = this.played.getLength() - 1; i >= 0; i--) {
-            this.played.remove(this.played.getChildren()[i], true);
-        }
+        this.played.clear(true, true);
     }
 
     clearButtons() {
-        for (let i = this.buttons.getLength() - 1; i >= 0; i--) {
-            this.buttons.remove(this.buttons.getChildren()[i], true);
-        }
+        this.buttons.clear(true, true);
     }
 
     clearImages() {
-        for (let i = this.images.getLength() - 1; i >= 0; i--) {
-            this.images.remove(this.images.getChildren()[i], true);
-        }
+        this.images.clear(true, true);
     }
 
     setHand(arr, scale_width, scale_height) {
