@@ -16,6 +16,7 @@ class Button extends Phaser.Physics.Arcade.Image {
         });
         this.on('pointerout', function() {
             self.setTexture(self.name + '_chinese');
+            self.clearTint();
         })
         this.on('pointerdown', function() {
             self.setTint(0xe0e0e0);

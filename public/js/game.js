@@ -48,7 +48,6 @@ function preload() {
     // load button images
     let buttons = ['draw', 'play', 'triple', 'quad', 'eat', 'win'];
     for (let i = 0; i < buttons.length; i++) {
-        this.load.image(buttons[i], 'public/img/buttons/' + buttons[i] + '.png');
         this.load.image(buttons[i] + '_chinese', 'public/img/buttons/' + buttons[i] + '_chinese.png');
         this.load.image(buttons[i] + '_english', 'public/img/buttons/' + buttons[i] + '_english.png');
     }
@@ -102,19 +101,13 @@ function create() {
                 self.player.setHand(players[self.io.id].hand, window_width / 1920, window_height / 1080);
                 self.player.setPlayed(players[self.io.id].played, window_width / 1920, window_height / 1080, num_players, pov_position);
                 if (player_index >= 0 && player_index < num_players) {
-                    self.player.setButtons(fishy, window_width / 1920, window_height / 1080);
+                    self.player.setButtons(fishy, players[self.io.id].delay, window_width / 1920, window_height / 1080);
                 } else {
                     self.player.clearButtons();
                 }
             } else {
                 self.player.clearAll();
             }
-            
-            /*
-            if (player_index < 0 || player_index >= num_players) {
-                return;
-            }
-            */
 
             // update enemies group
             for (let pos = 0; pos < num_players; pos++) {

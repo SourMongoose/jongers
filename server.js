@@ -43,6 +43,13 @@ io.on('connection', function(socket) {
         played: [],
         won: false,
         score: 0,
+        delay: {
+            'draw': 0,
+            'eat': 0,
+            'triple': 0,
+            'quad': 0,
+            'win': 0
+        }
     };
     player_ids.push(socket.id);
 
@@ -158,6 +165,13 @@ function game_start(socket, is_fishy) {
         players[player_ids[i]].played = [];
         players[player_ids[i]].won = false;
         players[player_ids[i]].score = 0;
+        players[player_ids[i]].delay = {
+            'draw': 0,
+            'eat': 0,
+            'triple': 0,
+            'quad': 0,
+            'win': 0
+        };
     }
     
     // create deck
@@ -427,8 +441,8 @@ function take_triple(socket) {
     take_n(socket, 3);
 }
 
-// attempt to take a set of size x from the middle
-function take_n(socket, x) {
+// attempt to take a set of size n from the middle
+function take_n(socket, n) {
     // sanity checks
     if (!started || players[socket.id].won || get_mid_tile() == null) {
         return;
@@ -442,14 +456,14 @@ function take_n(socket, x) {
     }
 
     // check that player has enough copies
-    if (count_occurences(players[socket.id].hand, get_mid_tile()) >= x - 1) {
-        let n = 0;
+    if (count_occurences(players[socket.id].hand, get_mid_tile()) >= n - 1) {
+        let x = 0;
         for (let i = players[socket.id].hand.length - 1; i >= 0; i--) {
             if (v(players[socket.id].hand[i]) == v(get_mid_tile())) {
                 players[socket.id].revealed.push(players[socket.id].hand.splice(i, 1)[0]);
-                n++;
+                x++;
             }
-            if (n >= x - 1) {
+            if (x >= n - 1) {
                 break;
             }
         }
@@ -597,6 +611,33 @@ function play_tile(socket, suit, num) {
             players[socket.id].played.push(tile);
             players[socket.id].hand.sort((a, b) => v(a) - v(b));
             next_player();
+
+            // set button delays
+            let can_win = false;
+            for (let j = 0; j < num_players; j++) {
+                if (winning_hand(players[player_ids[j]].hand.concat([get_mid_tile()]))) {
+                    can_win = true;
+                    break;
+                }
+            }
+            let can_triple = false;
+            for (let j = 0; j < num_players; j++) {
+                if (count_occurences(players[player_ids[j]].hand, get_mid_tile()) >= 2) {
+                    can_triple = true;
+                    break;
+                }
+            }
+
+            for (let j = 0; j < num_players; j++) {
+                players[player_ids[j]].delay = {
+                    'draw': (can_win ? 5000 : 0) + (can_triple ? 5000 : 0),
+                    'eat': (can_win ? 5000 : 0) + (can_triple ? 5000 : 0),
+                    'triple': can_win ? 5000 : 0,
+                    'quad': can_win ? 5000 : 0,
+                    'win': 0
+                };
+            }
+
             broadcast_update();
             return;
         }

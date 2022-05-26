@@ -168,7 +168,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         this.images.add(a);
     }
 
-    setButtons(is_fishy, scale_width, scale_height) {
+    setButtons(is_fishy, delay, scale_width, scale_height) {
         console.log('setButtons');
 
         let scale = Math.min(scale_width, scale_height);
@@ -188,7 +188,20 @@ class Player extends Phaser.Physics.Arcade.Sprite {
                 buttons[i]);
             b.setScale(this.button_width / 364 * scale);
 
-            b.setInteractive();
+            let button_delay = delay.hasOwnProperty(buttons[i]) ? delay[buttons[i]] : 0;
+            if (button_delay > 0) {
+                b.setAlpha(0.5);
+                b.disableInteractive();
+                this.scene.time.delayedCall(button_delay, function() {
+                    try {
+                        b.setAlpha(1);
+                        b.setInteractive();
+                    } catch (error) {}
+                });
+            } else {
+                b.setInteractive();
+            }
+
             let self = this;
             b.on('pointerdown', function() {
                 if (buttons[i] == 'draw') {
