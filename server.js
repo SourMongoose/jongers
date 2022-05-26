@@ -378,7 +378,7 @@ function win(socket) {
         if (winning_hand(players[socket.id].hand.concat([get_mid_tile()]))) {
             players[socket.id].won = true;
             players[socket.id].revealed.push(take_mid());
-            player_ids.indexOf(socket.id);
+            pov = player_ids.indexOf(socket.id);
         }
     }
 
