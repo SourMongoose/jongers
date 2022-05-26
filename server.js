@@ -43,13 +43,7 @@ io.on('connection', function(socket) {
         played: [],
         won: false,
         score: 0,
-        delay: {
-            'draw': 0,
-            'eat': 0,
-            'triple': 0,
-            'quad': 0,
-            'win': 0
-        }
+        delay: {}
     };
     player_ids.push(socket.id);
 
@@ -143,7 +137,13 @@ function next(tile) {
 }
 
 // update all players with current game state
-function broadcast_update() {
+function broadcast_update(has_delay) {
+    if (!has_delay) {
+        for (let j = 0; j < num_players; j++) {
+            players[player_ids[j]].delay = {};
+        }
+    }
+
     io.sockets.emit('game_info', players, player_ids, num_players, pov, deck.length, started, fishy);
 }
 
@@ -165,13 +165,7 @@ function game_start(socket, is_fishy) {
         players[player_ids[i]].played = [];
         players[player_ids[i]].won = false;
         players[player_ids[i]].score = 0;
-        players[player_ids[i]].delay = {
-            'draw': 0,
-            'eat': 0,
-            'triple': 0,
-            'quad': 0,
-            'win': 0
-        };
+        players[player_ids[i]].delay = {};
     }
     
     // create deck
@@ -638,7 +632,7 @@ function play_tile(socket, suit, num) {
                 };
             }
 
-            broadcast_update();
+            broadcast_update(true);
             return;
         }
     }
