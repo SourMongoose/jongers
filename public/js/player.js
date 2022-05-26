@@ -16,20 +16,24 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         this.buttons = scene.physics.add.group();
         this.images = scene.physics.add.group();
 
+        // image dimensions
+        this.tile_width = 197;
+        this.tile_height = 239;
+
         // graphics constants
         this.window_width = 1920;
         this.window_height = 1080;
         this.hand_tile_width = 115;
-        this.hand_tile_height = this.hand_tile_width * 899 / 740;
+        this.hand_tile_height = this.hand_tile_width * this.tile_height / this.tile_width;
         this.revealed_tile_width = 75;
-        this.revealed_tile_height = this.revealed_tile_width * 899 / 740;
+        this.revealed_tile_height = this.revealed_tile_width * this.tile_height / this.tile_width;
         this.played_tile_width = 65;
-        this.played_tile_height = this.played_tile_width * 899 / 740;
+        this.played_tile_height = this.played_tile_width * this.tile_height / this.tile_width;
         this.overlap = 0.185;
         this.overlap_vertical = 0.165;
         this.margin = 10;
         this.button_width = 115;
-        this.button_height = this.button_width * 757 / 1513;
+        this.button_height = this.button_width * 182 / 364;
 
         // input handling
         this.keyStart = scene.input.keyboard.addKey('S');
@@ -90,7 +94,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
                 this.window_width / 2 * scale_width - (total_width / 2 - this.hand_tile_width / 2 - i * this.hand_tile_width * (1 - this.overlap)) * scale,
                 this.window_height * scale_height - (this.hand_tile_height / 2 + this.margin) * scale,
                 arr[i][0], arr[i][1], false);
-            t.setScale(this.hand_tile_width / 740 * scale);
+            t.setScale(this.hand_tile_width / this.tile_width * scale);
 
             t.setInteractive();
             let dy = this.hand_tile_width * 0.25 * scale;
@@ -124,7 +128,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
                 this.window_width / 2 * scale_width - (total_width / 2 - this.revealed_tile_width / 2 - i * this.revealed_tile_width * (1 - this.overlap)) * scale,
                 this.window_height * scale_height - (this.hand_tile_height + this.revealed_tile_height / 2 + this.margin * 2) * scale,
                 arr[i][0], arr[i][1], false);
-            t.setScale(this.revealed_tile_width / 740 * scale);
+            t.setScale(this.revealed_tile_width / this.tile_width * scale);
             this.revealed.add(t);
         }
     }
@@ -158,7 +162,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
                     this.window_width / 2 * scale_width - (total_width / 2 - this.played_tile_width / 2 - c * this.played_tile_width * (1 - this.overlap)) * scale,
                     this.window_height / 2 * scale_height + (this.played_tile_height + r * this.played_tile_height * (1 - this.overlap_vertical) - this.played_tile_height) * scale,
                     arr[i][0], arr[i][1], false);
-                t.setScale(this.played_tile_width / 740 * scale);
+                t.setScale(this.played_tile_width / this.tile_width * scale);
                 t.setAngle(0);
                 this.played.add(t);
             }
@@ -169,7 +173,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
             this.window_width / 2 * scale_width,
             this.window_height / 2 * scale_height - this.played_tile_height * scale,
             'arrow');
-        a.setScale(this.played_tile_height / 2 / 1067 * scale);
+        a.setScale(this.played_tile_height / 2 / 128 * scale);
         a.setAngle((pov_position + 1) * 90);
         this.images.add(a);
     }
@@ -192,7 +196,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
                 this.window_width / 2 * scale_width - (total_width / 2 - this.button_width / 2 - i * (this.button_width + this.margin)) * scale,
                 this.window_height * scale_height - (this.hand_tile_height + this.revealed_tile_height + this.button_height / 2 + this.margin * 3) * scale,
                 buttons[i]);
-            b.setScale(this.button_width / 1513 * scale);
+            b.setScale(this.button_width / 364 * scale);
 
             b.setInteractive();
             let self = this;

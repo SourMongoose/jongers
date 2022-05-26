@@ -29,19 +29,21 @@ var player;
 var player_init = false;
 
 function preload() {
+    let res = '197px'; // options: 740px, 197px
+
     // load tile images
     for (let i = 1; i < 10; i++) {
-        this.load.image('tong' + i, 'public/img/tiles_png/740px-MJt' + i + '-.svg.png');
-        this.load.image('tiao' + i, 'public/img/tiles_png/740px-MJs' + i + '-.svg.png');
-        this.load.image('wan' + i, 'public/img/tiles_png/740px-MJw' + i + '-.svg.png');
+        this.load.image('tong' + i, 'public/img/tiles_png/' + res + '-MJt' + i + '-.svg.png');
+        this.load.image('tiao' + i, 'public/img/tiles_png/' + res + '-MJs' + i + '-.svg.png');
+        this.load.image('wan' + i, 'public/img/tiles_png/' + res + '-MJw' + i + '-.svg.png');
     }
     for (let i = 1; i < 4; i++) {
-        this.load.image('wind' + i, 'public/img/tiles_png/740px-MJf' + i + '-.svg.png');
+        this.load.image('wind' + i, 'public/img/tiles_png/' + res + '-MJf' + i + '-.svg.png');
     }
     for (let i = 1; i < 3; i++) {
-        this.load.image('dragon' + i, 'public/img/tiles_png/740px-MJd' + i + '-.svg.png');
+        this.load.image('dragon' + i, 'public/img/tiles_png/' + res + '-MJd' + i + '-.svg.png');
     }
-    this.load.image('back', 'public/img/tiles_png/back.png');
+    this.load.image('back', 'public/img/tiles_png/' + res + '-back.png');
 
     // load button images
     let buttons = ['draw', 'play', 'triple', 'quad', 'eat', 'win'];

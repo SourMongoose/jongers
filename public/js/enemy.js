@@ -14,15 +14,19 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.revealed = scene.physics.add.group();
         this.played = scene.physics.add.group();
 
+        // image dimensions
+        this.tile_width = 197;
+        this.tile_height = 239;
+
         // graphics constants
         this.window_width = 1920;
         this.window_height = 1080;
         this.hand_tile_width = 65;
-        this.hand_tile_height = this.hand_tile_width * 899 / 740;
+        this.hand_tile_height = this.hand_tile_width * this.tile_height / this.tile_width;
         this.revealed_tile_width = 65;
-        this.revealed_tile_height = this.revealed_tile_width * 899 / 740;
+        this.revealed_tile_height = this.revealed_tile_width * this.tile_height / this.tile_width;
         this.played_tile_width = 65;
-        this.played_tile_height = this.played_tile_width * 899 / 740;
+        this.played_tile_height = this.played_tile_width * this.tile_height / this.tile_width;
         this.overlap = 0.185;
         this.overlap_vertical = 0.165;
         this.margin = 10;
@@ -90,7 +94,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
                     arr[i][0], arr[i][1], hidden);
                 t.setAngle(90);
             }
-            t.setScale(this.hand_tile_width / 740 * scale);
+            t.setScale(this.hand_tile_width / this.tile_width * scale);
             this.hand.add(t);
         }
     }
@@ -133,7 +137,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
                     arr[i][0], arr[i][1], false);
                 t.setAngle(-90);
             }
-            t.setScale(this.revealed_tile_width / 740 * scale);
+            t.setScale(this.revealed_tile_width / this.tile_width * scale);
             this.revealed.add(t);
         }
     }
@@ -167,7 +171,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
                         this.window_height / 2 * scale_height + (this.played_tile_height + r * this.played_tile_height * (1 - this.overlap_vertical) - this.played_tile_height) * scale,
                         arr[i][0], arr[i][1], false);
                     t.setAngle(0);
-                    t.setScale(this.played_tile_width / 740 * scale);
+                    t.setScale(this.played_tile_width / this.tile_width * scale);
                     this.played.add(t);
                 }
             }
@@ -192,7 +196,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
                         this.window_height / 2 * scale_height - (total_width / 2 - this.played_tile_width / 2 - c * this.played_tile_width * (1 - this.overlap) + this.played_tile_height) * scale,
                         arr[i][0], arr[i][1], false);
                     t.setAngle(90);
-                    t.setScale(this.played_tile_width / 740 * scale);
+                    t.setScale(this.played_tile_width / this.tile_width * scale);
                     this.played.add(t);
                 }
             }
@@ -212,7 +216,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
                         this.window_height / 2 * scale_height - (this.played_tile_height + r * this.played_tile_height * (1 - this.overlap_vertical) + this.played_tile_height) * scale,
                         arr[i][0], arr[i][1], false);
                     t.setAngle(180);
-                    t.setScale(this.played_tile_width / 740 * scale);
+                    t.setScale(this.played_tile_width / this.tile_width * scale);
                     this.played.add(t);
                 }
             }
@@ -237,7 +241,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
                         this.window_height / 2 * scale_height + (total_width / 2 - this.played_tile_width / 2 - c * this.played_tile_width * (1 - this.overlap) - this.played_tile_height) * scale,
                         arr[i][0], arr[i][1], false);
                     t.setAngle(-90);
-                    t.setScale(this.played_tile_width / 740 * scale);
+                    t.setScale(this.played_tile_width / this.tile_width * scale);
                     this.played.add(t);
                 }
             }
