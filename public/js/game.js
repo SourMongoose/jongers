@@ -37,10 +37,10 @@ function preload() {
         this.load.image('tiao' + i, 'public/img/tiles_png/' + res + '-MJs' + i + '-.svg.png');
         this.load.image('wan' + i, 'public/img/tiles_png/' + res + '-MJw' + i + '-.svg.png');
     }
-    for (let i = 1; i < 4; i++) {
+    for (let i = 1; i < 5; i++) {
         this.load.image('wind' + i, 'public/img/tiles_png/' + res + '-MJf' + i + '-.svg.png');
     }
-    for (let i = 1; i < 3; i++) {
+    for (let i = 1; i < 4; i++) {
         this.load.image('dragon' + i, 'public/img/tiles_png/' + res + '-MJd' + i + '-.svg.png');
     }
     this.load.image('back', 'public/img/tiles_png/' + res + '-back.png');
