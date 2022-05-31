@@ -163,7 +163,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
             this.window_width / 2 * scale_width,
             this.window_height / 2 * scale_height - this.played_tile_height * scale,
             'arrow');
-        a.setScale(this.played_tile_height / 2 / 128 * scale);
+        a.setScale(this.played_tile_height / 2 / 64 * scale);
         a.setAngle((pov_position + 1) * 90);
         this.images.add(a);
 
@@ -175,8 +175,9 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         d.setScale(this.hand_tile_width / this.tile_width * scale);
         this.images.add(d);
         if (deck_length) {
+            let base_px = 48;
             let style = {
-                font: Math.round(this.hand_tile_width / 3 * scale) + 'px Arial',
+                font: base_px + 'px Arial',
                 fill: '#ffffff',
                 align: 'center',
             };
@@ -185,6 +186,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
                 deck_length + '', style);
             d_text.setDepth(6);
             d_text.setOrigin(0.5);
+            d_text.setScale(this.hand_tile_width / 3 * scale / base_px);
             this.images.add(d_text);
         }
     }
@@ -207,7 +209,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
                 this.window_width / 2 * scale_width - (total_width / 2 - this.button_width / 2 - i * (this.button_width + this.margin)) * scale,
                 this.window_height * scale_height - (this.hand_tile_height + this.revealed_tile_height + this.button_height / 2 + this.margin * 3) * scale,
                 buttons[i]);
-            b.setScale(this.button_width / 364 * scale);
+            b.setScale(this.button_width / 182 * scale);
 
             let button_delay = delay.hasOwnProperty(buttons[i]) ? delay[buttons[i]] : 0;
             if (button_delay > 0) {
