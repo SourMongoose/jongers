@@ -118,6 +118,15 @@ io.on('connection', function(socket) {
             }
 
             player_ids.splice(i, 1);
+
+            // if a player leaves the lobby
+            if (!started) {
+                player_ids.forEach(function(id) {
+                    if (!started || player_ids.indexOf(id) >= num_players) {
+                        io.to(id).emit('lobby_menu', players, player_ids);
+                    }
+                });
+            }
         }
 
         delete players[socket.id];
@@ -623,14 +632,14 @@ function play_tile(socket, suit, num) {
             // set button delays
             let can_win = false;
             for (let j = 0; j < num_players; j++) {
-                if (winning_hand(players[player_ids[j]].hand.concat([get_mid_tile()]))) {
+                if (!players[player_ids[j]].won && winning_hand(players[player_ids[j]].hand.concat([get_mid_tile()]))) {
                     can_win = true;
                     break;
                 }
             }
             let can_triple = false;
             for (let j = 0; j < num_players; j++) {
-                if (count_occurences(players[player_ids[j]].hand, get_mid_tile()) >= 2) {
+                if (!players[player_ids[j]].won && count_occurences(players[player_ids[j]].hand, get_mid_tile()) >= 2) {
                     can_triple = true;
                     break;
                 }

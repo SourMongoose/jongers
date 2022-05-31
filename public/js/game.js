@@ -82,6 +82,10 @@ function create() {
 
     // lobby menu
     this.io.on('lobby_menu', function(players, player_ids) {
+        if (self.player_init) {
+            self.player.clearAll();
+        }
+
         self.menu.lobbyMenu(players, player_ids, scale_width, scale_height);
     });
 
