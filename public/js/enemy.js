@@ -1,5 +1,5 @@
 class Enemy extends Phaser.Physics.Arcade.Sprite {
-    constructor(scene, id, position) {
+    constructor(scene, id, position, name) {
         super(scene, 0, 0, 'enemy');
 
         scene.add.existing(this);
@@ -9,10 +9,12 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.scene = scene;
         this.id = id;
         this.position = position;
+        this.name = name;
 
         this.hand = scene.physics.add.group();
         this.revealed = scene.physics.add.group();
         this.played = scene.physics.add.group();
+        this.text = scene.physics.add.group();
 
         // image dimensions
         this.tile_width = 197;
@@ -36,6 +38,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.clearHand();
         this.clearRevealed();
         this.clearPlayed();
+        this.clearText();
     }
 
     clearHand() {
@@ -50,6 +53,10 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.played.clear(true, true);
     }
 
+    clearText() {
+        this.text.clear(true, true);
+    }
+
     setHand(arr, scale_width, scale_height, hidden) {
         console.log('setHand', this.id, arr);
 
@@ -57,6 +64,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
 
         // remove previous elements
         this.clearHand();
+        this.clearText();
 
         let total_width = arr.length * this.hand_tile_width * (1 - this.overlap) + this.hand_tile_width * this.overlap;
 
@@ -91,6 +99,40 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
             t.setScale(this.hand_tile_width / this.tile_width * scale);
             this.hand.add(t);
         }
+
+        // show player names
+        let base_px = 48;
+        let style = {
+            font: base_px + 'px Arial',
+            fill: '#ffffff',
+            align: 'center',
+        };
+        let txt;
+        if (this.position == 0) { // bottom
+            txt = this.scene.add.text((this.margin + this.hand_tile_width / 2 * (1 - this.overlap)) * scale,
+                this.window_height * scale_height - (this.margin + this.hand_tile_height / 2 * (1 - this.overlap_vertical)) * scale,
+                this.name, style);
+            txt.setAngle(0);
+        } else if (this.position == 1) { // left
+            txt = this.scene.add.text((this.margin + this.hand_tile_height / 2) * scale,
+                this.window_height / 2 * scale_height,
+                this.name, style);
+            txt.setAngle(-90);
+        } else if (this.position == 2) { // top
+            txt = this.scene.add.text(this.window_width / 2 * scale_width,
+                (this.margin + this.hand_tile_height / 2) * scale,
+                this.name, style);
+            txt.setAngle(0);
+        } else if (this.position == 3) { // right
+            txt = this.scene.add.text(this.window_width * scale_width - (this.margin + this.hand_tile_height / 2) * scale,
+                this.window_height / 2 * scale_height,
+                this.name, style);
+            txt.setAngle(90);
+        }
+        txt.setDepth(6);
+        txt.setOrigin(0.5);
+        txt.setScale(this.hand_tile_width / 3 * scale / base_px);
+        this.text.add(txt);
     }
 
     setRevealed(arr, scale_width, scale_height) {

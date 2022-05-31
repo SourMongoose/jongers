@@ -44,10 +44,23 @@ io.on('connection', function(socket) {
         score: 0,
         delay: {}
     };
-    player_ids.push(socket.id);
 
-    socket.emit('game_info', players, player_ids, num_players, pov, started, fishy);
+    socket.emit('main_menu');
+
+    //socket.emit('game_info', players, player_ids, num_players, pov, started, fishy);
     //socket.broadcast.emit('new_player', players[socket.id]);
+
+    socket.on('game_enter', function(name) {
+        console.log('game_enter', socket.id, name);
+        players[socket.id].name = name;
+        player_ids.push(socket.id);
+
+        player_ids.forEach(function(id) {
+            if (!started || player_ids.indexOf(id) >= num_players) {
+                io.to(id).emit('lobby_menu', players, player_ids);
+            }
+        });
+    });
 
     socket.on('game_start', function(is_fishy) {
         if (started) {
@@ -143,7 +156,9 @@ function broadcast_update(has_delay) {
         }
     }
 
-    io.sockets.emit('game_info', players, player_ids, num_players, pov, deck.length, started, fishy);
+    player_ids.forEach(function(id) {
+        io.to(id).emit('game_info', players, player_ids, num_players, pov, deck.length, started, fishy);
+    });
 }
 
 // start a game

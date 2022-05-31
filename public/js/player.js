@@ -34,10 +34,6 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         this.margin = 10;
         this.button_width = 115;
         this.button_height = this.button_width * 182 / 364;
-
-        // input handling
-        this.keyStart = scene.input.keyboard.addKey('S');
-        this.keyFishy = scene.input.keyboard.addKey('F');
     }
 
     clearAll() {
@@ -123,7 +119,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
-    setPlayed(arr, scale_width, scale_height, num_players, pov_position, deck_length) {
+    setPlayed(arr, scale_width, scale_height, num_players, pov_position, deck_length, started) {
         console.log('setPlayed player', arr, pov_position, deck_length);
 
         let scale = Math.min(scale_width, scale_height);
@@ -158,14 +154,16 @@ class Player extends Phaser.Physics.Arcade.Sprite {
             }
         }
 
-        // add pov arrow
-        let a = new SimpleImage(this.scene,
-            this.window_width / 2 * scale_width,
-            this.window_height / 2 * scale_height - this.played_tile_height * scale,
-            'arrow');
-        a.setScale(this.played_tile_height / 2 / 64 * scale);
-        a.setAngle((pov_position + 1) * 90);
-        this.images.add(a);
+        if (started) {
+            // add pov arrow
+            let a = new SimpleImage(this.scene,
+                this.window_width / 2 * scale_width,
+                this.window_height / 2 * scale_height - this.played_tile_height * scale,
+                'arrow');
+            a.setScale(this.played_tile_height / 2 / 64 * scale);
+            a.setAngle((pov_position + 1) * 90);
+            this.images.add(a);
+        }
 
         // add deck
         let d = new SimpleImage(this.scene,
@@ -191,7 +189,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
-    setButtons(is_fishy, delay, scale_width, scale_height) {
+    setButtons(is_fishy, delay, scale_width, scale_height, started) {
         console.log('setButtons');
 
         let scale = Math.min(scale_width, scale_height);
@@ -265,22 +263,23 @@ class Player extends Phaser.Physics.Arcade.Sprite {
 
             this.buttons.add(b);
         }
+
+        if (!started) {
+            // add restart button
+            let b = new Button(this.scene,
+                this.window_width / 2 * scale_width,
+                this.window_height / 2 * scale_height - this.played_tile_height * scale,
+                'start');
+            b.setScale(this.button_width / 182 * scale);
+            b.setInteractive();
+            let self = this;
+            b.on('pointerdown', function() {
+                self.scene.io.emit('game_start');
+            });
+            this.buttons.add(b);
+        }
     }
 
     update() {
-        if (this.keyStart.isDown) {
-            if (!this.keyDown) {
-                this.keyDown = true;
-                this.scene.io.emit('game_start', false);
-            }
-            return;
-        } else if (this.keyFishy.isDown) {
-            if (!this.keyDown) {
-                this.keyDown = true;
-                this.scene.io.emit('game_start', true);
-            }
-        } else {
-            this.keyDown = false;
-        }
     }
 }

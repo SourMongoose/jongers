@@ -1,5 +1,9 @@
 var window_height = window.innerHeight;
 var window_width = window.innerWidth;
+var target_height = 1080;
+var target_width = 1920;
+var scale_height = window_height / target_height;
+var scale_width = window_width / target_width;
 
 var config = {
     type: Phaser.AUTO,
@@ -22,6 +26,11 @@ var config = {
         create: create,
         update: update,
     },
+
+    parent: 'base',
+    dom: {
+        createContainer: true,
+    }
 }
 
 var game = new Phaser.Game(config);
@@ -46,7 +55,7 @@ function preload() {
     this.load.image('back', 'public/img/tiles_png/' + res + '-back.png');
 
     // load button images
-    let buttons = ['draw', 'play', 'triple', 'quad', 'eat', 'win'];
+    let buttons = ['draw', 'play', 'triple', 'quad', 'eat', 'win', 'enter', 'start'];
     for (let i = 0; i < buttons.length; i++) {
         this.load.image(buttons[i] + '_chinese', 'public/img/buttons/' + buttons[i] + '_chinese.png');
         this.load.image(buttons[i] + '_english', 'public/img/buttons/' + buttons[i] + '_english.png');
@@ -62,11 +71,25 @@ function create() {
     this.io = io();
     self = this;
     this.enemies = this.physics.add.group();
+    this.menu = new Menu(this);
 
     createPlayer(this);
 
+    // main menu
+    this.io.on('main_menu', function() {
+        self.menu.mainMenu(scale_width, scale_height);
+    });
+
+    // lobby menu
+    this.io.on('lobby_menu', function(players, player_ids) {
+        self.menu.lobbyMenu(players, player_ids, scale_width, scale_height);
+    });
+
     // update game info
     this.io.on('game_info', function(players, player_ids, num_players, pov, deck_length, started, fishy) {
+        // clear menu screen
+        self.menu.clearAll();
+
         // if these values are falsy, assume game has been reset
         if (!players || !player_ids || !num_players) {
             // clear hand
@@ -97,11 +120,11 @@ function create() {
 
             // update player hand
             if (players.hasOwnProperty(self.io.id)) {
-                self.player.setRevealed(players[self.io.id].revealed, window_width / 1920, window_height / 1080);
-                self.player.setHand(players[self.io.id].hand, window_width / 1920, window_height / 1080);
-                self.player.setPlayed(players[self.io.id].played, window_width / 1920, window_height / 1080, num_players, pov_position, deck_length);
+                self.player.setRevealed(players[self.io.id].revealed, scale_width, scale_height);
+                self.player.setHand(players[self.io.id].hand, scale_width, scale_height);
+                self.player.setPlayed(players[self.io.id].played, scale_width, scale_height, num_players, pov_position, deck_length, started);
                 if (player_index >= 0 && player_index < num_players) {
-                    self.player.setButtons(fishy, players[self.io.id].delay, window_width / 1920, window_height / 1080);
+                    self.player.setButtons(fishy, players[self.io.id].delay, scale_width, scale_height, started);
                 } else {
                     self.player.clearButtons();
                 }
@@ -132,7 +155,7 @@ function create() {
 
                 // if not, add enemy to group
                 if (!found) {
-                    createEnemy(self, enemy_id, pos);
+                    createEnemy(self, enemy_id, pos, players[enemy_id].name);
                 }
             }
 
@@ -149,9 +172,9 @@ function create() {
             self.enemies.getChildren().forEach(function(enemy) {
                 if (players.hasOwnProperty(enemy.id)) {
                     let hide_enemy = (player_index >= 0 && player_index < num_players) && started && !players[self.io.id].won;
-                    enemy.setHand(players[enemy.id].hand, window_width / 1920, window_height / 1080, hide_enemy);
-                    enemy.setRevealed(players[enemy.id].revealed, window_width / 1920, window_height / 1080);
-                    enemy.setPlayed(players[enemy.id].played, window_width / 1920, window_height / 1080, num_players);
+                    enemy.setHand(players[enemy.id].hand, scale_width, scale_height, hide_enemy);
+                    enemy.setRevealed(players[enemy.id].revealed, scale_width, scale_height);
+                    enemy.setPlayed(players[enemy.id].played, scale_width, scale_height, num_players);
                 } else {
                     enemy.clearAll();
                 }
@@ -185,7 +208,7 @@ function createPlayer(scene) {
     scene.player = new Player(scene);
 }
 
-function createEnemy(scene, id, position) {
-    const enemy = new Enemy(scene, id, position);
+function createEnemy(scene, id, position, name) {
+    const enemy = new Enemy(scene, id, position, name);
     scene.enemies.add(enemy);
 }
