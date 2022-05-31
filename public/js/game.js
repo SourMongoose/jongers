@@ -85,6 +85,9 @@ function create() {
         if (self.player_init) {
             self.player.clearAll();
         }
+        self.enemies.getChildren().forEach(function(enemy) {
+            enemy.clearAll();
+        });
 
         self.menu.lobbyMenu(players, player_ids, scale_width, scale_height);
     });
